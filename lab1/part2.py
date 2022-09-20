@@ -15,8 +15,8 @@ def main():
     
     robot = MoveHandler()
 
-    line(robot)
-    #rotate(robot)
+    #line(robot)
+    rotate(robot)
 
     # Write final position to file
     robot.write_pos_to_file(f)

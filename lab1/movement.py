@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from time import sleep
-from math import sin, cos, radians, pi
+from math import sin, cos, radians, pi, degrees
 
 from time import sleep
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent, MoveTank
@@ -136,20 +136,26 @@ class MoveHandler:
         # Use kinematics to find position
         
         # Given wheel speeds, compute x, y, theta
-        v1 = self.wheel_speed(self.tank_drive.left_motor, seconds)
-        v2 = self.wheel_speed(self.tank_drive.right_motor, seconds)
+        vl = self.wheel_speed(self.tank_drive.left_motor, seconds)
+        vr = self.wheel_speed(self.tank_drive.right_motor, seconds)
 
         # Total velocity is sum of both wheels divided by 2
-        v = (v1 + v2) / 2
+        v = (vr + vl) / 2
+
+        # Compute angular velocity and angle (radians)
+        a = (vr - vl) / MoveHandler.axelLength
+        theta = a * seconds
 
         # Multiply v by cos theta for vx and sin theta for vy
-        theta = self.gs.angle
-        vx = v * cos(radians(theta))
-        vy = v * sin(radians(theta))
+        vx = v * cos(theta)
+        vy = v * sin(theta)
 
         # Multiply by time to find position (cm)
         x = vx * seconds
         y = vy * seconds
+
+        # Convert theta to degrees
+        theta = degrees(theta)
 
         print("x: %d cm" % x)
         print("y: %d cm" % y)
