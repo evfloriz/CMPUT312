@@ -54,7 +54,7 @@ class MoveHandler:
         percent = angularVelocity*100/(2*pi)/MoveHandler.motorRPS
         print(time)
         print(angularVelocity)
-        print(percent)
+        
         
         if direction is "forwards":
         
@@ -97,13 +97,13 @@ class MoveHandler:
         
         if direction is "right":
             
-            leftVelocity = (turnRadius-(MoveHandler.axelLength/2))*angularVelocity
-            rightVelocity = (turnRadius+(MoveHandler.axelLength/2))*angularVelocity
+            leftVelocity = (turnRadius+(MoveHandler.axelLength/2))*angularVelocity
+            rightVelocity = (turnRadius-(MoveHandler.axelLength/2))*angularVelocity
             
         elif direction is "left":
 
-            leftVelocity = (turnRadius+(MoveHandler.axelLength/2))*angularVelocity
-            rightVelocity = (turnRadius-(MoveHandler.axelLength/2))*angularVelocity
+            leftVelocity = (turnRadius-(MoveHandler.axelLength/2))*angularVelocity
+            rightVelocity = (turnRadius+(MoveHandler.axelLength/2))*angularVelocity
             
         leftAngularVelocity = leftVelocity/(MoveHandler.wheelDiameter/2)
         rightAngularVelocity = rightVelocity/(MoveHandler.wheelDiameter/2)

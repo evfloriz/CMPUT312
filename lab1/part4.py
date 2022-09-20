@@ -28,9 +28,9 @@ def main():
     
     # Left motor speed, right motor speed, seconds
     commands = [
-        [ 80, 60, 2 ],
-        [ 60, 60, 1 ],
-        [ -50, 80, 2 ]
+        [ 30, 50, 2 ],
+        [ 60, 60, 1 ]
+        #[ -50, 80, 2 ]
     ]
     
     deadReckoning(robot, commands)

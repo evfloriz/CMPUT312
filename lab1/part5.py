@@ -37,8 +37,8 @@ class Braitenberg:
         self.right_speed = (self.cs2.value() / 5 - 20) ** 2 * self.dir
 
     def run(self):
-        #behaviour = self.aggression
-        behaviour = self.cowardice
+        behaviour = self.aggression
+        #behaviour = self.cowardice
         
         while(True):
             behaviour()
