@@ -4,6 +4,8 @@ from time import sleep
 from movement import MoveHandler
 
 def deadReckoning(robot, commands):
+    
+    # Output sensor data to file
     f = open("part4.out", "w")
     
     final_odom = {"x": 0, "y": 0, "theta": 0}
@@ -24,6 +26,7 @@ def deadReckoning(robot, commands):
 
 def main():
     
+    # Construct robot object
     robot = MoveHandler()
     
     # Left motor speed, right motor speed, seconds

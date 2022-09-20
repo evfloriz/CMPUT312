@@ -49,13 +49,14 @@ class MoveHandler:
 
     def drive(self, distance, direction, velocity):
         
+        # Compute variables for kinematics
         time = distance/velocity
         angularVelocity = velocity/(MoveHandler.wheelDiameter/2)
         percent = angularVelocity*100/(2*pi)/MoveHandler.motorRPS
         print(time)
         print(angularVelocity)
         
-        
+        # Move based on direction input
         if direction is "forwards":
         
             self.move(SpeedPercent(percent), SpeedPercent(percent), time)
@@ -66,10 +67,12 @@ class MoveHandler:
 
     def spin(self, degrees, direction, velocity):
         
+        # Compute variables for kinematics
         radians = degrees*(pi/180)
         distance = radians*(MoveHandler.axelLength/2)
         time = distance/velocity
         
+        # Compute wheel velocity based on direction input
         if direction is "right":
             
             leftVelocity = -velocity
@@ -80,21 +83,25 @@ class MoveHandler:
             leftVelocity = velocity
             rightVelocity = -velocity
             
+        # Compute angular velocity for each wheel
         leftAngularVelocity = leftVelocity/(2*pi)/(MoveHandler.wheelDiameter/2)
         rightAngularVelocity = rightVelocity/(2*pi)/(MoveHandler.wheelDiameter/2)
         
+        # Compute motor power percent for each wheel and move accordingly
         leftPercent = leftAngularVelocity*100/MoveHandler.motorRPS
         rightPercent = rightAngularVelocity*100/MoveHandler.motorRPS
         self.move(SpeedPercent(leftPercent), SpeedPercent(rightPercent), time)
 
     def turn(self, degrees, turnRadius, direction, velocity):
         
+        # Compute variables for kinematics
         radians = degrees*(pi/180)
         distance = radians*turnRadius
         time = distance/velocity
         angularVelocity = radians/time
         angularVelocity = angularVelocity/(2*pi)
         
+        # Compute wheel velocity based on direcction input
         if direction is "right":
             
             leftVelocity = (turnRadius+(MoveHandler.axelLength/2))*angularVelocity
@@ -105,9 +112,11 @@ class MoveHandler:
             leftVelocity = (turnRadius-(MoveHandler.axelLength/2))*angularVelocity
             rightVelocity = (turnRadius+(MoveHandler.axelLength/2))*angularVelocity
             
+        # Compute angular velocity for each wheel
         leftAngularVelocity = leftVelocity/(MoveHandler.wheelDiameter/2)
         rightAngularVelocity = rightVelocity/(MoveHandler.wheelDiameter/2)
         
+        # Compute motor power percent for each wheel and move accordingly
         leftPercent = leftAngularVelocity*100/MoveHandler.motorRPS
         rightPercent = rightAngularVelocity*100/MoveHandler.motorRPS
         self.move(SpeedPercent(leftPercent), SpeedPercent(rightPercent), time)
