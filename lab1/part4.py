@@ -3,28 +3,15 @@
 from time import sleep
 from movement import MoveHandler
 
-def deadReckoning(robot, commands):
-    
-    # Output sensor data to file
-    f = open("part4.out", "w")
-    
-    final_odom = {"x": 0, "y": 0, "theta": 0}
+def deadReckoning(robot, commands):    
     for command in commands:
-        odom = robot.move(command[0], command[1], command[2])
-        f.write(str(odom) + "\n")
-        
-        final_odom["x"] += odom["x"]
-        final_odom["y"] += odom["y"]
-        final_odom["theta"] += odom["theta"]
+        robot.move(command[0], command[1], command[2])
         sleep(1)
-        
-    f.write(str(final_odom) + "\n")
-    f.close()
-    
-    # Sleep so the user can read the screen output
-    sleep(20)
 
 def main():
+
+    # Open output file
+    f = open("part4.out", "w")
     
     # Construct robot object
     robot = MoveHandler()
@@ -37,5 +24,12 @@ def main():
     ]
     
     deadReckoning(robot, commands)
+
+    # Write final position to file
+    robot.write_pos_to_file(f)
+    f.close()
+
+    # Sleep so the user can read the screen output
+    sleep(20)
     
 main()

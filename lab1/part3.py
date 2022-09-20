@@ -38,7 +38,9 @@ def circle(robot, radius, velocity):
     robot.turn(360, radius, "left", velocity)
 
 def main():
-    
+    # Open output file
+    f = open("part3.out", "w")
+
     # Construct robot object
     robot = MoveHandler()
     
@@ -46,5 +48,12 @@ def main():
     lemniscate(robot, 20, 10)
     #line(robot, 20, 10)
     #circle(robot, 10, 10)
+
+    # Write final position to file
+    robot.write_pos_to_file(f)
+    f.close()
+
+    # Sleep so the user can read the screen output
+    sleep(20)
 
 main()

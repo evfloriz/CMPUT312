@@ -29,6 +29,10 @@ class MoveHandler:
         self.gs = GyroSensor()
         self.gs.mode = 'GYRO-ANG'
         self.gs.reset()
+        #self.gs.calibrate()            # may need to calibrate if gyro angle changes on its own
+        
+        # Keep track of accumulated odometry readings
+        self.pos = {"x": 0, "y": 0, "theta": 0}
         
     def move(self, left_speed, right_speed, seconds):
         # Reset motor positions and gyro sensor angle so relative motion can be calculated
@@ -42,10 +46,7 @@ class MoveHandler:
         
         self.tank_drive.on_for_seconds(left_speed, right_speed, seconds)
 
-        odom = self.print_position(seconds)
-        #self.print_gyro()
-        
-        return odom
+        self.print_position(seconds)
 
     def drive(self, distance, direction, velocity):
         
@@ -53,12 +54,10 @@ class MoveHandler:
         time = distance/velocity
         angularVelocity = velocity/(MoveHandler.wheelDiameter/2)
         percent = angularVelocity*100/(2*pi)/MoveHandler.motorRPS
-        print(time)
-        print(angularVelocity)
         
         # Move based on direction input
         if direction is "forwards":
-        
+
             self.move(SpeedPercent(percent), SpeedPercent(percent), time)
             
         elif direction is "backwards":
@@ -152,9 +151,17 @@ class MoveHandler:
         x = vx * seconds
         y = vy * seconds
 
-        print("theta %d degrees" % theta)
         print("x: %d cm" % x)
         print("y: %d cm" % y)
+        print("theta: %d degrees" % theta)
         print("-")
-        
-        return {"x": x, "y": y, "theta": theta}
+
+        # Update accumulated position
+        self.pos["x"] += x
+        self.pos["y"] += y
+        self.pos["theta"] += theta
+
+    def write_pos_to_file(self, f):
+        f.write("x: "       + str(self.pos["x"])        + "\n" +
+                "y: "       + str(self.pos["y"])        + "\n" +
+                "theta: "   + str(self.pos["theta"])    + "\n")
