@@ -33,6 +33,7 @@ class MoveHandler:
         
         # Keep track of accumulated odometry readings
         self.pos = {"x": 0, "y": 0, "theta": 0}
+        self.power = [0, 0]
         
     def move(self, left_speed, right_speed, seconds):
         # Reset motor positions and gyro sensor angle so relative motion can be calculated
@@ -45,6 +46,8 @@ class MoveHandler:
         right_speed *= MoveHandler.motorDirection
         
         self.tank_drive.on_for_seconds(left_speed, right_speed, seconds)
+
+        self.power = [left_speed, right_speed]
 
         self.print_position(seconds)
 
@@ -64,6 +67,8 @@ class MoveHandler:
             
             self.move(-SpeedPercent(percent), -SpeedPercent(percent), time)
 
+        #self.power = [percent, percent]
+
     def spin(self, degrees, direction, velocity):
         
         # Compute variables for kinematics
@@ -72,12 +77,12 @@ class MoveHandler:
         time = distance/velocity
         
         # Compute wheel velocity based on direction input
-        if direction is "right":
+        if direction is "left":
             
             leftVelocity = -velocity
             rightVelocity = velocity
             
-        elif direction is "left":
+        elif direction is "right":
 
             leftVelocity = velocity
             rightVelocity = -velocity
@@ -90,6 +95,8 @@ class MoveHandler:
         leftPercent = leftAngularVelocity*100/MoveHandler.motorRPS
         rightPercent = rightAngularVelocity*100/MoveHandler.motorRPS
         self.move(SpeedPercent(leftPercent), SpeedPercent(rightPercent), time)
+
+        #self.power = [leftPercent, rightPercent]
 
     def turn(self, degrees, turnRadius, direction, velocity):
         
@@ -119,6 +126,8 @@ class MoveHandler:
         leftPercent = leftAngularVelocity*100/MoveHandler.motorRPS
         rightPercent = rightAngularVelocity*100/MoveHandler.motorRPS
         self.move(SpeedPercent(leftPercent), SpeedPercent(rightPercent), time)
+
+        #self.power = [leftPercent, rightPercent]
     
     def print_gyro(self):
         print(str(self.gs.angle))
@@ -168,6 +177,22 @@ class MoveHandler:
         self.pos["theta"] += theta
 
     def write_pos_to_file(self, f):
-        f.write("x: "       + str(self.pos["x"])        + "\n" +
-                "y: "       + str(self.pos["y"])        + "\n" +
-                "theta: "   + str(self.pos["theta"])    + "\n")
+        f.write("x: "       + str(self.pos["x"])        + " cm\n" +
+                "y: "       + str(self.pos["y"])        + " cm\n" +
+                "theta: "   + str(self.pos["theta"])    + " degrees\n")
+
+    def write_gyro_to_file(self, f):
+        # Gyro angle is negative to match our motor orientation
+        f.write("gyro: " + str(-self.gs.angle) + " degrees\n")
+
+
+    def write_power_to_file(self, f):
+        f.write("left power: " + str(self.power[0]) + " percent\n" +
+                "right power: " + str(self.power[1]) + " percent\n")
+
+
+    def write_state_to_file(self, f):
+        self.write_pos_to_file(f)
+        self.write_gyro_to_file(f)
+        self.write_power_to_file(f)
+        f.write("---------------------------------------------\n")

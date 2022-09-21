@@ -3,15 +3,16 @@
 from time import sleep
 from movement import MoveHandler
 
-def deadReckoning(robot, commands):    
+def deadReckoning(robot, commands, file):    
     for command in commands:
         robot.move(command[0], command[1], command[2])
+        robot.write_state_to_file(file)
         sleep(1)
 
 def main():
 
     # Open output file
-    f = open("part4.out", "w")
+    file = open("part4.out", "w")
     
     # Construct robot object
     robot = MoveHandler()
@@ -26,8 +27,8 @@ def main():
     deadReckoning(robot, commands)
 
     # Write final position to file
-    robot.write_pos_to_file(f)
-    f.close()
+    robot.write_state_to_file(file)
+    file.close()
 
     # Sleep so the user can read the screen output
     sleep(20)

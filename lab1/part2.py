@@ -1,26 +1,65 @@
 #!/usr/bin/env python3
 
+'''
+Experiments
+
+line:
+3 trials at velocity = 10
+    - 1 of 0.5m
+    - 1 of 1.0m
+    - 1 of 1.5m
+3 trials at velocity = 20
+    - 1 of 0.5m
+    - 1 of 1.0m
+    - 1 of 1.5m
+3 trials at velocity = 40
+    - 1 of 0.5m
+    - 1 of 1.0m
+    - 1 of 1.5m
+
+rotate:
+3 trials at velocity = 10
+    - 1 of 360
+    - 1 of 720
+    - 1 of 1080
+3 trials at velocity = 20
+    - 1 of 360
+    - 1 of 720
+    - 1 of 1080
+3 trials at velocity = 40
+    - 1 of 360
+    - 1 of 720
+    - 1 of 1080
+
+'''
+
 from movement import MoveHandler
 from time import sleep
 
 def line(robot):
-    robot.drive(100, "forwards", 10)
+    distance = 100
+    velocity = 20
+
+    robot.drive(distance, "forwards", velocity)
 
 def rotate(robot):
-    robot.spin(360, "left", 10)
+    degrees = 360
+    velocity = 10
+
+    robot.spin(degrees, "left", velocity)
 
 def main():
     # Open output file
-    f = open("part2.out", "w")
+    file = open("part2.out", "w")
     
-    robot = MoveHandler()
-
-    #line(robot)
-    rotate(robot)
+    robot = MoveHandler()    
+    
+    line(robot)
+    #rotate(robot)
 
     # Write final position to file
-    robot.write_pos_to_file(f)
-    f.close()
+    robot.write_state_to_file(file)
+    file.close()
 
     # Sleep so the user can read the screen output
     sleep(20)
