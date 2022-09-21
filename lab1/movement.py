@@ -22,7 +22,9 @@ class MoveHandler:
     motorRPS = 165/60
     motorDirection = -1
 
-    def __init__(self):
+    def __init__(self, file):        
+        self.file = file
+
         self.tank_drive = MoveTank(OUTPUT_A, OUTPUT_B)
 
         # Initiate gyro sensor
@@ -34,6 +36,9 @@ class MoveHandler:
         # Keep track of accumulated odometry readings
         self.pos = {"x": 0, "y": 0, "theta": 0}
         self.power = [0, 0]
+
+        self.start_angle = 0
+        self.prev_start_angle = 0
         
     def move(self, left_speed, right_speed, seconds):
         # Reset motor positions and gyro sensor angle so relative motion can be calculated
@@ -48,8 +53,9 @@ class MoveHandler:
         self.tank_drive.on_for_seconds(left_speed, right_speed, seconds)
 
         self.power = [left_speed, right_speed]
-
-        self.print_position(seconds)
+        self.calculate_position(seconds)
+        
+        self.write_state_to_file()
 
     def drive(self, distance, direction, velocity):
         
@@ -66,8 +72,6 @@ class MoveHandler:
         elif direction is "backwards":
             
             self.move(-SpeedPercent(percent), -SpeedPercent(percent), time)
-
-        #self.power = [percent, percent]
 
     def spin(self, degrees, direction, velocity):
         
@@ -95,8 +99,6 @@ class MoveHandler:
         leftPercent = leftAngularVelocity*100/MoveHandler.motorRPS
         rightPercent = rightAngularVelocity*100/MoveHandler.motorRPS
         self.move(SpeedPercent(leftPercent), SpeedPercent(rightPercent), time)
-
-        #self.power = [leftPercent, rightPercent]
 
     def turn(self, degrees, turnRadius, direction, velocity):
         
@@ -126,8 +128,6 @@ class MoveHandler:
         leftPercent = leftAngularVelocity*100/MoveHandler.motorRPS
         rightPercent = rightAngularVelocity*100/MoveHandler.motorRPS
         self.move(SpeedPercent(leftPercent), SpeedPercent(rightPercent), time)
-
-        #self.power = [leftPercent, rightPercent]
     
     def print_gyro(self):
         print(str(self.gs.angle))
@@ -136,12 +136,12 @@ class MoveHandler:
         # Return wheel speed in cm/s
         # Wheel speed:
         # degrees / (degrees per rotation) * (wheel circumference) / seconds
-        # wheel diameter: 5.6cm, circumference: 17.6
+        # wheel diameter: 5.6cm, circumference: 5.6 * pi
 
         # Note: Sign of speed is changed to match the orientation of our motors
-        return MoveHandler.motorDirection * wheel.position / 360 * 17.6 / seconds
+        return MoveHandler.motorDirection * wheel.position / 360 * (5.6 * pi) / seconds
     
-    def print_position(self, seconds):
+    def calculate_position(self, seconds):
         # Use kinematics to find position
         
         # Given wheel speeds, compute x, y, theta
@@ -159,40 +159,38 @@ class MoveHandler:
         vx = v * cos(theta)
         vy = v * sin(theta)
 
-        # Multiply by time to find position (cm)
-        x = vx * seconds
-        y = vy * seconds
-
-        # Convert theta to degrees
-        theta = degrees(theta)
-
-        print("x: %d cm" % x)
-        print("y: %d cm" % y)
-        print("theta: %d degrees" % theta)
-        print("-")
+        # Multiply by time to find position (cm) in robot reference frame [xr, yr]
+        xr = vx * seconds
+        yr = vy * seconds
+        
+        # Convert coordinates from robot reference frame to world reference frame [xw, yw] using rotation matrix
+        # From Robotics, Modeling, and Control, section 2.2.1, page 41
+        xw = xr * cos(self.start_angle) - yr * sin(self.start_angle)
+        yw = xr * sin(self.start_angle) + yr * cos(self.start_angle)
 
         # Update accumulated position
-        self.pos["x"] += x
-        self.pos["y"] += y
-        self.pos["theta"] += theta
+        self.pos["x"] += xw
+        self.pos["y"] += yw
+        self.pos["theta"] += degrees(theta)
 
-    def write_pos_to_file(self, f):
-        f.write("x: "       + str(self.pos["x"])        + " cm\n" +
-                "y: "       + str(self.pos["y"])        + " cm\n" +
-                "theta: "   + str(self.pos["theta"])    + " degrees\n")
+        # Update current heading for next calculation (in radians)
+        self.start_angle += theta
 
-    def write_gyro_to_file(self, f):
+    def write_pos(self):
+        self.file.write("x: "       + str(self.pos["x"])        + " cm\n" +
+                        "y: "       + str(self.pos["y"])        + " cm\n" +
+                        "theta: "   + str(self.pos["theta"])    + " degrees\n")
+
+    def write_gyro(self):
         # Gyro angle is negative to match our motor orientation
-        f.write("gyro: " + str(-self.gs.angle) + " degrees\n")
-
-
-    def write_power_to_file(self, f):
-        f.write("left power: " + str(self.power[0]) + " percent\n" +
+        self.file.write("gyro: " + str(-self.gs.angle) + " degrees\n")
+    
+    def write_power(self):
+        self.file.write("left power: " + str(self.power[0]) + " percent\n" +
                 "right power: " + str(self.power[1]) + " percent\n")
 
-
-    def write_state_to_file(self, f):
-        self.write_pos_to_file(f)
-        self.write_gyro_to_file(f)
-        self.write_power_to_file(f)
-        f.write("---------------------------------------------\n")
+    def write_state_to_file(self):
+        self.write_pos()
+        self.write_gyro()
+        self.write_power()
+        self.file.write("---------------------------------------------\n")

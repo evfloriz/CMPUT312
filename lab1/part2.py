@@ -52,16 +52,12 @@ def main():
     # Open output file
     file = open("part2.out", "w")
     
-    robot = MoveHandler()    
+    robot = MoveHandler(file)    
     
     line(robot)
     #rotate(robot)
 
-    # Write final position to file
-    robot.write_state_to_file(file)
+    # Close output file
     file.close()
-
-    # Sleep so the user can read the screen output
-    sleep(20)
 
 main()

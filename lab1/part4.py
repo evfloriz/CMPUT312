@@ -6,7 +6,6 @@ from movement import MoveHandler
 def deadReckoning(robot, commands, file):    
     for command in commands:
         robot.move(command[0], command[1], command[2])
-        robot.write_state_to_file(file)
         sleep(1)
 
 def main():
@@ -15,22 +14,18 @@ def main():
     file = open("part4.out", "w")
     
     # Construct robot object
-    robot = MoveHandler()
+    robot = MoveHandler(file)
     
     # Left motor speed, right motor speed, seconds
     commands = [
-        [ 30, 50, 2 ],
+        [ 80, 60, 2 ],
         [ 60, 60, 1 ]
-        #[ -50, 80, 2 ]
+        [ -50, 80, 2 ]
     ]
     
     deadReckoning(robot, commands)
 
-    # Write final position to file
-    robot.write_state_to_file(file)
+    # Close output file
     file.close()
-
-    # Sleep so the user can read the screen output
-    sleep(20)
     
 main()

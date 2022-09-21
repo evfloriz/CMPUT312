@@ -9,9 +9,7 @@ def rectangle(robot, distance, driveVelocity, spinVelocity, file):
     # Move forward and spin in place right angle four times based on input
     for i in range(4):
         robot.drive(distance, "forwards", driveVelocity)
-        robot.write_state_to_file(file)
         robot.spin(90, "left", spinVelocity)
-        robot.write_state_to_file(file)
         
 def lemniscate(robot, radius, velocity, file):
     
@@ -23,15 +21,10 @@ def lemniscate(robot, radius, velocity, file):
     
     # Move forward and turn angle based on input
     distance = radius * (sqrt((1 - 2 * cos(radians(135))) / cos(radians(67.5))))
-    robot.write_state_to_file(file)
     robot.drive(distance, "forwards", velocity)
-    robot.write_state_to_file(file)
     robot.turn(225, radius, "left", velocity)
-    robot.write_state_to_file(file)
     robot.drive(distance, "forwards", velocity)
-    robot.write_state_to_file(file)
     robot.turn(225, radius, "right", velocity)
-    robot.write_state_to_file(file)
     
         
 def line(robot, distance, velocity):
@@ -49,18 +42,14 @@ def main():
     file = open("part3.out", "w")
 
     # Construct robot object
-    robot = MoveHandler()
+    robot = MoveHandler(file)
     
     rectangle(robot, 20, 20, 5, file)
     #lemniscate(robot, 20, 10)
     #line(robot, 20, 10)
     #circle(robot, 10, 10)
 
-    # Write final position to file
-    robot.write_state_to_file(file)
+    # Close output file
     file.close()
-
-    # Sleep so the user can read the screen output
-    sleep(20)
 
 main()
