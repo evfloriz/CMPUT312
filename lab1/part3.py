@@ -11,7 +11,7 @@ def rectangle(robot, distance, driveVelocity, spinVelocity, direction):
         robot.drive(distance, "forwards", driveVelocity)
         robot.spin(90, direction, spinVelocity)
         
-def lemniscate(robot, radius, velocity, file):
+def lemniscate(robot, radius, velocity):
     
     #distance = sqrt(2) * radius / cos(radians(45))
     #robot.turn(270, radius, "left", velocity)
@@ -44,8 +44,8 @@ def main():
     # Construct robot object
     robot = MoveHandler(file)
     
-    rectangle(robot, 20, 20, 5, "right")
-    #lemniscate(robot, 20, 10)
+    #rectangle(robot, 20, 20, 5, "left")
+    lemniscate(robot, 10, 10)
     #line(robot, 20, 10)
     #circle(robot, 10, 10)
 
