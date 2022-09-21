@@ -4,12 +4,12 @@ from math import cos, sqrt, radians
 from time import sleep
 from movement import MoveHandler
 
-def rectangle(robot, distance, driveVelocity, spinVelocity, file):
+def rectangle(robot, distance, driveVelocity, spinVelocity, direction):
     
     # Move forward and spin in place right angle four times based on input
     for i in range(4):
         robot.drive(distance, "forwards", driveVelocity)
-        robot.spin(90, "left", spinVelocity)
+        robot.spin(90, direction, spinVelocity)
         
 def lemniscate(robot, radius, velocity, file):
     
@@ -44,7 +44,7 @@ def main():
     # Construct robot object
     robot = MoveHandler(file)
     
-    rectangle(robot, 20, 20, 5, file)
+    rectangle(robot, 20, 20, 5, "right")
     #lemniscate(robot, 20, 10)
     #line(robot, 20, 10)
     #circle(robot, 10, 10)

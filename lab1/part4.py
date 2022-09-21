@@ -2,10 +2,11 @@
 
 from time import sleep
 from movement import MoveHandler
+from ev3dev2.motor import SpeedPercent
 
-def deadReckoning(robot, commands, file):    
+def deadReckoning(robot, commands):    
     for command in commands:
-        robot.move(command[0], command[1], command[2])
+        robot.move(SpeedPercent(command[0]), SpeedPercent(command[1]), command[2])
         sleep(1)
 
 def main():
@@ -19,7 +20,7 @@ def main():
     # Left motor speed, right motor speed, seconds
     commands = [
         [ 80, 60, 2 ],
-        [ 60, 60, 1 ]
+        [ 60, 60, 1 ],
         [ -50, 80, 2 ]
     ]
     

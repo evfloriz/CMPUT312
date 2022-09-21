@@ -38,7 +38,6 @@ class MoveHandler:
         self.power = [0, 0]
 
         self.start_angle = 0
-        self.prev_start_angle = 0
         
     def move(self, left_speed, right_speed, seconds):
         # Reset motor positions and gyro sensor angle so relative motion can be calculated
@@ -148,16 +147,24 @@ class MoveHandler:
         vl = self.wheel_speed(self.tank_drive.left_motor, seconds)
         vr = self.wheel_speed(self.tank_drive.right_motor, seconds)
 
+        #self.file.write("vl: " + str(vl) + " cm/s\n" +
+        #                "vr: " + str(vr) + " cm/s\n")
+
         # Total velocity is sum of both wheels divided by 2
         v = (vr + vl) / 2
 
-        # Compute angular velocity and angle (radians)
+        # Compute angular velocity and the final angle (radians)
         a = (vr - vl) / MoveHandler.axelLength
         theta = a * seconds
 
-        # Multiply v by cos theta for vx and sin theta for vy
-        vx = v * cos(theta)
-        vy = v * sin(theta)
+        # Multiply v by cos theta / 2 for vx and sin theta for vy
+        # Theta is divided by 2 to find the average angle from the final angle (assuming a circular turn)
+        avg_theta = theta / 2
+        vx = v * cos(avg_theta)
+        vy = v * sin(avg_theta)
+
+        #self.file.write("vx: " + str(vx) + " cm/s\n" +
+        #                "vy: " + str(vy) + " cm/s\n")
 
         # Multiply by time to find position (cm) in robot reference frame [xr, yr]
         xr = vx * seconds
@@ -167,6 +174,11 @@ class MoveHandler:
         # From Robotics, Modeling, and Control, section 2.2.1, page 41
         xw = xr * cos(self.start_angle) - yr * sin(self.start_angle)
         yw = xr * sin(self.start_angle) + yr * cos(self.start_angle)
+
+        #self.file.write("xr: " + str(xr) + " cm\n" +
+        #                "yr: " + str(yr) + " cm\n" +
+        #                "xw: " + str(xw) + " cm\n" +
+        #                "yw: " + str(yw) + " cm\n")
 
         # Update accumulated position
         self.pos["x"] += xw
