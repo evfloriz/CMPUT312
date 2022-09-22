@@ -6,10 +6,11 @@ from movement import MoveHandler
 
 def rectangle(robot, distance, driveVelocity, spinVelocity, direction):
     
-    # Move forward and spin in place right angle four times based on input
-    for i in range(4):
-        robot.drive(distance, "forwards", driveVelocity)
-        robot.spin(90, direction, spinVelocity)
+    for i in range(3):
+        # Move forward and spin in place right angle four times based on input
+        for j in range(4):
+            robot.drive(distance, "forwards", driveVelocity)
+            robot.spin(90, direction, spinVelocity)
         
 def lemniscate(robot, radius, velocity):
     
@@ -19,12 +20,13 @@ def lemniscate(robot, radius, velocity):
     #robot.turn(270, radius, "right", velocity)
     #robot.drive(distance, "forwards", velocity)
     
-    # Move forward and turn angle based on input
-    distance = radius * (sqrt((1 - 2 * cos(radians(135))) / cos(radians(67.5))))
-    robot.drive(distance, "forwards", velocity)
-    robot.turn(225, radius, "left", velocity)
-    robot.drive(distance, "forwards", velocity)
-    robot.turn(225, radius, "right", velocity)
+    for i in range(3):
+        # Move forward and turn angle based on input
+        distance = radius * (sqrt((1 - 2 * cos(radians(135))) / cos(radians(67.5))))
+        robot.drive(distance, "forwards", velocity)
+        robot.turn(225, radius, "left", velocity)
+        robot.drive(distance, "forwards", velocity)
+        robot.turn(225, radius, "right", velocity)
     
         
 def line(robot, distance, velocity):
@@ -44,8 +46,8 @@ def main():
     # Construct robot object
     robot = MoveHandler(file)
     
-    rectangle(robot, 20, 10, 10, "left")
-    #lemniscate(robot, 10, 10)
+    #rectangle(robot, 20, 10, 5, "left")
+    lemniscate(robot, 10, 10)
     #line(robot, 20, 10)
     #circle(robot, 10, 10)
 
