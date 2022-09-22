@@ -2,7 +2,7 @@
 
 from time import sleep
 
-from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveTank
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveTank, SpeedPercent
 from ev3dev2.sensor import INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import ColorSensor
 
@@ -37,13 +37,13 @@ class Braitenberg:
         self.right_speed = (self.cs2.value() / 5 - 20) ** 2 * self.dir
 
     def run(self):
-        behaviour = self.aggression
-        #behaviour = self.cowardice
+        #behaviour = self.aggression
+        behaviour = self.cowardice
         
         while(True):
             behaviour()
             
-            self.tank_drive.on(self.left_speed, self.right_speed)
+            self.tank_drive.on(SpeedPercent(self.left_speed), SpeedPercent(self.right_speed))
             sleep(self.rate)
 
 
