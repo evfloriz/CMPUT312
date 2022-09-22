@@ -37,14 +37,14 @@ from movement import MoveHandler
 from time import sleep
 
 def line(robot):
-    distance = 100
-    velocity = 20
+    distance = 50
+    velocity = 30
 
     robot.drive(distance, "forwards", velocity)
 
 def rotate(robot):
     degrees = 360
-    velocity = 10
+    velocity = 30
 
     robot.spin(degrees, "left", velocity)
 
@@ -54,8 +54,8 @@ def main():
     
     robot = MoveHandler(file)    
     
-    line(robot)
-    #rotate(robot)
+    #line(robot)
+    rotate(robot)
 
     # Close output file
     file.close()

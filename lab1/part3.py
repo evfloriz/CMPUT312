@@ -44,8 +44,8 @@ def main():
     # Construct robot object
     robot = MoveHandler(file)
     
-    #rectangle(robot, 20, 20, 5, "left")
-    lemniscate(robot, 10, 10)
+    rectangle(robot, 20, 10, 10, "left")
+    #lemniscate(robot, 10, 10)
     #line(robot, 20, 10)
     #circle(robot, 10, 10)
 
