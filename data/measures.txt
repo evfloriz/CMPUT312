@@ -1,0 +1,69 @@
+square
+
+1:
+x: 8.3 cm
+y: -4.2 cm
+theta: 30 deg
+
+
+2:
+x: 0.9 cm
+y: -0.2 cm
+theta: -10 deg
+
+
+4:
+x: 4.6 cm
+y: -3.7 cm
+theta: 12 deg
+
+
+4:
+x: 2.5 cm
+y: -3.7 cm
+theta: 11 deg
+
+lem
+
+1:
+x: 3.2 cm
+y: -5.1 cm
+theta: 1 degrees
+
+
+
+
+
+part2 straight line (distance, power)
+-------
+50, 10
+measured distance: 52.5
+x: 52.5 * cos(-3rad) = 
+y: 52.5 * sin(-3rad) = 
+theta: -3
+-------
+50, 20
+53.0
+-------
+50, 30
+52.7
+-------
+
+
+
+
+part2 rotate (degrees, power)
+-------
+360, 10
+x: 0.3
+y: -1.2
+-------
+360, 20
+x: 0.8
+y: -1.3
+-------
+360, 30
+x: 0.4
+y: -1.3
+-------
+
