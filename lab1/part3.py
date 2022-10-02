@@ -1,5 +1,34 @@
 #!/usr/bin/env python3
 
+'''
+"""
+Group Members: Evan Florizone, Yiyan Zhang
+
+Date: Sept 21, 2022
+ 
+Brick Number: g10
+
+Lab Number: 1
+
+Problem Number: 3
+ 
+Brief Program/Problem Description: 
+
+	Testing error when moving in a rectangle shape and a lemniscate.
+
+Brief Solution Summary:
+
+	Use movement interface to move in a rectangle 3 times and a lemniscate 3 times.
+
+Used Resources/Collaborators:
+	See movement.py
+
+I/we hereby certify that I/we have produced the following solution 
+using only the resources listed above in accordance with the 
+CMPUT 312 collaboration policy.
+"""
+'''
+
 from math import cos, sqrt, radians
 from time import sleep
 from movement import MoveHandler

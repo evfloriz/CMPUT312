@@ -1,5 +1,38 @@
 #!/usr/bin/env python3
 
+'''
+"""
+Group Members: Evan Florizone, Yiyan Zhang
+
+Date: Sept 21, 2022
+ 
+Brick Number: g10
+
+Lab Number: 1
+
+Problem Number: 5
+ 
+Brief Program/Problem Description: 
+
+	Implement a Braitenberg vehicle
+
+Brief Solution Summary:
+
+	Aggression - more power to left motor when left light sensor detects light,
+    more power to right motor when right light sensor detects light.
+
+    Cowardice - more power to right motor when left light sensor detects light,
+    more power to left motor when right light sensor detects light.
+
+Used Resources/Collaborators:
+	In class discussion of Braitenberg vehicles
+
+I/we hereby certify that I/we have produced the following solution 
+using only the resources listed above in accordance with the 
+CMPUT 312 collaboration policy.
+"""
+'''
+
 from time import sleep
 
 from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveTank, SpeedPercent

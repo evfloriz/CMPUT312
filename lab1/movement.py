@@ -1,5 +1,42 @@
 #!/usr/bin/env python3
 
+'''
+"""
+Group Members: Evan Florizone, Yiyan Zhang
+
+Date: Sept 21, 2022
+ 
+Brick Number: g10
+
+Lab Number: 1
+
+Problem Number: 2, 3, 4
+ 
+Brief Program/Problem Description: 
+
+	Implement a movement class to handle common movement functions.
+
+Brief Solution Summary:
+
+	move - actually move motors using motor speeds
+    drive - kinematically determine motor speed given a distance, direction and velocity and move motors accordingly
+    spin - kinematically determine motor speed given a degree, direction and velocity and move motors accordingly
+    turn - kinematically determine motor speed given a degree, turn radius, direction and velocity and move motors accordingly
+    calculate_position - calculate position kinematically given motor speeds and time
+    write_state_to_file - write motor and sensor data to file
+
+    Other helper functions are implemented to facilitate this core functionality
+
+Used Resources/Collaborators:
+	ev3dev API,
+    ev3dev tutorial https://sites.google.com/site/ev3python/learn_ev3_python
+
+I/we hereby certify that I/we have produced the following solution 
+using only the resources listed above in accordance with the 
+CMPUT 312 collaboration policy.
+"""
+'''
+
 from time import sleep
 from math import sin, cos, radians, pi, degrees
 
