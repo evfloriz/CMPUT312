@@ -33,6 +33,8 @@ CMPUT 312 collaboration policy.
 from math import degrees, radians, pi, sin, cos, acos, asin, atan2, sqrt
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent
 
+from time import sleep
+
 import mtx
 
 class MoveHandler:
@@ -96,6 +98,8 @@ class MoveHandler:
         step[0] /= self.granularity
         step[1] /= self.granularity
 
+        self.file.write("part3 test\n")
+
         for i in range(self.granularity):
             # Compute LHS of equation with current angles guess
             goal = [init_pos[0] - i * step[0], init_pos[1] - i * step[1]]        # current goal is one more step length away from initial
@@ -103,9 +107,7 @@ class MoveHandler:
             lhs = [goal[0] - guess[0], goal[1] - guess[1]]
 
             # Compute Jacobian with current angles guess
-            J = self.computeJacobian(angles)
-
-            #self.file.write(str(J))
+            J = self.computeJacobian(angles)         
 
             # Solve to converge angles guess toward a solution
             delta_angles = mtx.solve(mtx.lu(J), lhs)
@@ -114,24 +116,28 @@ class MoveHandler:
             angles[1] += delta_angles[1]
 
             # Move motors towards the improved guess
-            motor1_degrees = self.motor1_dir * (90 - degrees(angles[0]))
+            motor1_degrees = self.motor1_dir * (90 - degrees(-angles[0]))
             motor2_degrees = self.motor2_dir * degrees(angles[1])
 
-            self.motor1.on_for_degrees(self.speed, motor1_degrees)
-            self.motor2.on_for_degrees(self.speed, motor2_degrees)
+            #self.motor1.on_for_degrees(self.speed, motor1_degrees)
+            #self.motor2.on_for_degrees(self.speed, motor2_degrees)
 
             # Write state for debugging
             self.file.write("goal: " + str(goal) + "\n" +
                             "guess: " + str(guess) + "\n" +
                             "lhs: " + str(lhs) + "\n" +
                             "angles: " + str(angles) + "\n" +
+                            "motor degrees 1: " + str(motor1_degrees) + "\n" +
+                            "motor degrees 2: " + str(motor2_degrees) + "\n" +
                             "-------------------\n")
+
+            sleep(1.0)
 
 
     def forwardKinematics(self, angles):
         # Return current x and y of end effector given joint angles (in radians)
-        posX = self.l2 * cos(angles[0] + angles[1]) + self.l1 * cos(angles[0])
-        posY = self.l2 * sin(angles[0] + angles[1]) + self.l1 * sin(angles[0])
+        posX = self.l2 * cos(-angles[0] + angles[1]) + self.l1 * cos(-angles[0])
+        posY = self.l2 * sin(-angles[0] + angles[1]) + self.l1 * sin(-angles[0])
         #self.current_pos[0] = posX
         #self.current_pos[1] = posY
         
@@ -140,11 +146,11 @@ class MoveHandler:
         return [posX, posY]
 
     def computeJacobian(self, angles):
-        a = -self.l2 * sin(angles[0] + angles[1]) - self.l1 * sin(angles[0])
-        b = -self.l2 * sin(angles[0] + angles[1])
+        a = -self.l2 * sin(-angles[0] + angles[1]) - self.l1 * sin(-angles[0])
+        b = -self.l2 * sin(-angles[0] + angles[1])
 
-        c = self.l2 * cos(angles[0] + angles[1]) + self.l1 * cos(angles[0])
-        d = self.l2 * cos(angles[0] + angles[1])
+        c = self.l2 * cos(-angles[0] + angles[1]) + self.l1 * cos(-angles[0])
+        d = self.l2 * cos(-angles[0] + angles[1])
 
         J = [[a, b],
             [c, d]]
