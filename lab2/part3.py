@@ -31,7 +31,7 @@ from movement import MoveHandler
 
 def main():
     # Open output file
-    file = open("part3test.out", "w")
+    file = open("part3.out", "w")
 
     # Construct robot object
     robot = MoveHandler(file)

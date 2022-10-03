@@ -42,8 +42,8 @@ class MoveHandler:
     def __init__(self, file):
         self.file = file
 
-        self.motor1 = LargeMotor(OUTPUT_A)
-        self.motor2 = LargeMotor(OUTPUT_B)
+        #self.motor1 = LargeMotor(OUTPUT_A)
+        #self.motor2 = LargeMotor(OUTPUT_B)
 
         self.motor1_dir = 1
         self.motor2_dir = -1        # motor2 direction is flipped
@@ -54,7 +54,7 @@ class MoveHandler:
         self.l1 = 16.0
         self.l2 = 8.5
 
-        self.granularity = 20
+        self.granularity = 50
 
         self.current_pos = [0.0, 24.5]
     
@@ -102,7 +102,7 @@ class MoveHandler:
 
         for i in range(self.granularity):
             # Compute LHS of equation with current angles guess
-            goal = [init_pos[0] - i * step[0], init_pos[1] - i * step[1]]        # current goal is one more step length away from initial
+            goal = [init_pos[0] + i * step[0], init_pos[1] + i * step[1]]        # current goal is one more step length away from initial
             guess = self.forwardKinematics(angles)
             lhs = [goal[0] - guess[0], goal[1] - guess[1]]
 
@@ -116,8 +116,8 @@ class MoveHandler:
             angles[1] += delta_angles[1]
 
             # Move motors towards the improved guess
-            motor1_degrees = self.motor1_dir * (90 - degrees(-angles[0]))
-            motor2_degrees = self.motor2_dir * degrees(angles[1])
+            motor1_degrees = self.motor1_dir * degrees(delta_angles[0])
+            motor2_degrees = self.motor2_dir * degrees(delta_angles[1])
 
             #self.motor1.on_for_degrees(self.speed, motor1_degrees)
             #self.motor2.on_for_degrees(self.speed, motor2_degrees)
@@ -131,13 +131,14 @@ class MoveHandler:
                             "motor degrees 2: " + str(motor2_degrees) + "\n" +
                             "-------------------\n")
 
-            sleep(1.0)
+            #sleep(1.0)
 
 
     def forwardKinematics(self, angles):
         # Return current x and y of end effector given joint angles (in radians)
-        posX = self.l2 * cos(-angles[0] + angles[1]) + self.l1 * cos(-angles[0])
-        posY = self.l2 * sin(-angles[0] + angles[1]) + self.l1 * sin(-angles[0])
+        posX = self.l2 * cos(angles[0] + angles[1]) + self.l1 * cos(angles[0])
+        posY = self.l2 * sin(angles[0] + angles[1]) + self.l1 * sin(angles[0])
+
         #self.current_pos[0] = posX
         #self.current_pos[1] = posY
         
@@ -146,11 +147,11 @@ class MoveHandler:
         return [posX, posY]
 
     def computeJacobian(self, angles):
-        a = -self.l2 * sin(-angles[0] + angles[1]) - self.l1 * sin(-angles[0])
-        b = -self.l2 * sin(-angles[0] + angles[1])
+        a = -self.l2 * sin(angles[0] + angles[1]) - self.l1 * sin(angles[0])
+        b = -self.l2 * sin(angles[0] + angles[1])
 
-        c = self.l2 * cos(-angles[0] + angles[1]) + self.l1 * cos(-angles[0])
-        d = self.l2 * cos(-angles[0] + angles[1])
+        c = self.l2 * cos(angles[0] + angles[1]) + self.l1 * cos(angles[0])
+        d = self.l2 * cos(angles[0] + angles[1])
 
         J = [[a, b],
             [c, d]]
@@ -169,10 +170,6 @@ class MoveHandler:
         # use current angles and new angles to find relative angles
         # move to position
         pass
-
-    def write_angle_to_file(self):
-        self.file.write("theta1: " + self.motor1.position + "\n" +
-                        "theta2: " + self.motor2.position + "\n")
 
     def write_pos_to_file(self):
         self.file.write("x: " + self.current_pos[0] + "\n" +
