@@ -36,7 +36,9 @@ def main():
     # Construct robot object
     robot = MoveHandler(file)
 
-    robot.positionAnalytic(15, 15)
+    #robot.positionAnalytic(15, 15)
+    robot.positionNumerical(15, 15)
+    #robot.forwardKinematics(0, 0)
 
     # Close output file
     file.close()
