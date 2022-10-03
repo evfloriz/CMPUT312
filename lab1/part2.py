@@ -1,36 +1,32 @@
 #!/usr/bin/env python3
 
 '''
-Experiments
+"""
+Group Members: Evan Florizone, Yiyan Zhang
 
-line:
-3 trials at velocity = 10
-    - 1 of 0.5m
-    - 1 of 1.0m
-    - 1 of 1.5m
-3 trials at velocity = 20
-    - 1 of 0.5m
-    - 1 of 1.0m
-    - 1 of 1.5m
-3 trials at velocity = 40
-    - 1 of 0.5m
-    - 1 of 1.0m
-    - 1 of 1.5m
+Date: Sept 21, 2022
+ 
+Brick Number: g10
 
-rotate:
-3 trials at velocity = 10
-    - 1 of 360
-    - 1 of 720
-    - 1 of 1080
-3 trials at velocity = 20
-    - 1 of 360
-    - 1 of 720
-    - 1 of 1080
-3 trials at velocity = 40
-    - 1 of 360
-    - 1 of 720
-    - 1 of 1080
+Lab Number: 1
 
+Problem Number: 2
+ 
+Brief Program/Problem Description: 
+
+	Testing error gathering methods for straight lines and rotations
+
+Brief Solution Summary:
+
+	Use movement interface to move in a straight line and rotate
+
+Used Resources/Collaborators:
+	See movement.py
+
+I/we hereby certify that I/we have produced the following solution 
+using only the resources listed above in accordance with the 
+CMPUT 312 collaboration policy.
+"""
 '''
 
 from movement import MoveHandler
