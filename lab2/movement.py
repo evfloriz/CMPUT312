@@ -42,11 +42,11 @@ class MoveHandler:
     def __init__(self, file):
         self.file = file
 
-        #self.motor1 = LargeMotor(OUTPUT_A)
-        #self.motor2 = LargeMotor(OUTPUT_B)
+        self.motor1 = LargeMotor(OUTPUT_A)
+        self.motor2 = LargeMotor(OUTPUT_B)
 
-        self.motor1_dir = 1
-        self.motor2_dir = -1        # motor2 direction is flipped
+        self.motor1_dir = -1
+        self.motor2_dir = 1        # motor2 direction is flipped
 
         self.speed = SpeedPercent(10)
 
@@ -54,7 +54,7 @@ class MoveHandler:
         self.l1 = 16.0
         self.l2 = 8.5
 
-        self.granularity = 50
+        self.granularity = 30
 
         self.current_pos = [0.0, 24.5]
     
@@ -67,13 +67,18 @@ class MoveHandler:
         self.file.write("theta1: " + str(theta1) + " theta2: " + str(theta2) + "\n")
         self.file.write("theta1 deg: " + str(90 - degrees(theta1)) + " theta2 deg: " + str(degrees(theta2)) + "\n")
 
-        motor1_degrees = self.motor1_dir * (90 - degrees(theta1))
-        motor2_degrees = self.motor2_dir * degrees(theta2)
+        # Move motors toward calculated angle
+        motor1_degrees = self.motor1_dir * -(90 - degrees(theta1))
+        motor2_degrees = self.motor2_dir * -degrees(theta2)
 
         self.motor1.on_for_degrees(self.speed, motor1_degrees)
         self.motor2.on_for_degrees(self.speed, motor2_degrees)
 
-        self.write_angle_to_file()
+        self.file.write("motor degrees 1: " + str(motor1_degrees) + "\n" +
+                        "motor degrees 2: " + str(motor2_degrees) + "\n" +
+                         "-------------------\n")
+
+        
 
     def positionNumerical(self, x, y):
         # Using Newton's method
@@ -119,14 +124,16 @@ class MoveHandler:
             motor1_degrees = self.motor1_dir * degrees(delta_angles[0])
             motor2_degrees = self.motor2_dir * degrees(delta_angles[1])
 
-            #self.motor1.on_for_degrees(self.speed, motor1_degrees)
-            #self.motor2.on_for_degrees(self.speed, motor2_degrees)
+            self.motor1.on_for_degrees(self.speed, motor1_degrees)
+            self.motor2.on_for_degrees(self.speed, motor2_degrees)
 
             # Write state for debugging
             self.file.write("goal: " + str(goal) + "\n" +
                             "guess: " + str(guess) + "\n" +
                             "lhs: " + str(lhs) + "\n" +
                             "angles: " + str(angles) + "\n" +
+                            "delta: " + str(delta_angles) + "\n" +
+
                             "motor degrees 1: " + str(motor1_degrees) + "\n" +
                             "motor degrees 2: " + str(motor2_degrees) + "\n" +
                             "-------------------\n")
