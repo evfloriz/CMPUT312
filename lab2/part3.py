@@ -36,11 +36,14 @@ def main():
     # Construct robot object
     robot = MoveHandler(file)
 
-    #robot.positionAnalytic(-10, 10)
-    robot.positionNumerical(-10, 10)
+    #robot.positionAnalytic(8.5, 16.0)
+    robot.positionNumerical(8.5, 16.0)
     #robot.forwardKinematics(0, 0)
 
     # Close output file
     file.close()
 
 main()
+
+# change granularity to see when jacobian works and when inaccurate
+# accuracy vs repeatability
