@@ -103,6 +103,9 @@ def main():
 
     #distance()
     #angle()
-    moveToAngle(45, 90)
+    #moveToAngle(45, 90)
+    #moveToAngle(90, 90)
+    #moveToAngle(180, 90)
+    moveToAngle(45, 45)
 
 main()
