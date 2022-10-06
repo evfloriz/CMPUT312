@@ -29,6 +29,22 @@ CMPUT 312 collaboration policy.
 
 from movement import MoveHandler
 
+def midpoint(input):
+    
+    file = open("midpoint.out", "w")
+    robot = MoveHandler(file)
+    robot.angleCoordinate()
+    x_midpoint = abs(robot.x_coordinate[1]-robot.x_coordinate[2])/2
+    y_midpoint = abs(robot.y_coordinate[1]-robot.y_coordinate[2])/2
+    
+    if input is "Analytic":
+        robot.positionAnalytic(x_midpoint,y_midpoint)
+    elif input is "Numerical":
+        robot.positionNumerical(x_midpoint,y_midpoint)
+    
+    robot.file.write("Distance: " + str(distance) + "\n")
+    file.close()
+
 def main():
     # Open output file
     file = open("part3.out", "w")

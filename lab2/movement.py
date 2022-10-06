@@ -53,6 +53,9 @@ class MoveHandler:
         self.motor1_dir = -1
         self.motor2_dir = 1        # motor2 direction is flipped
 
+        self.motor1.position = 0
+        self.motor2.position = 0
+
         self.speed = SpeedPercent(10)
 
         # Length of link 1 and 2 in cm
@@ -74,12 +77,14 @@ class MoveHandler:
         self.x_coordinate.append(0)
         self.y_coordinate.append(0)
 
+
     def readAngles(self, numReads):
-        print("Ready!")
-        
-        # Record positions after some number of touch sensor inputs        
+        # Record positions after some number of touch sensor inputs
         ts = TouchSensor(INPUT_4)
         ts.MODE_TOUCH = 'TOUCH'
+
+
+        print("Ready!")
 
         for i in range(numReads):
             ts.wait_for_bump()
@@ -91,31 +96,17 @@ class MoveHandler:
             self.file.write("Touched\n")
             print("Touched")
 
-           
-    def angleCoordinate(self):
-        print("Ready!")
-        # Record positions after 2 touch sensor inputs
-        ts = TouchSensor(INPUT_4)
-        ts.MODE_TOUCH = 'TOUCH'
-        ts.wait_for_bump()
-        point1_angle1 = -self.motor1.position
-        point1_angle2 = self.motor2.position
-        self.file.write("Touched\n")
-        print("Touched")
-        ts.wait_for_bump()
-        point2_angle1 = -self.motor1.position
-        point2_angle2 = self.motor2.position
-        self.file.write("Touched\n")
-        print("Touched")
-        
-        self.anglePosition(point1_angle1, point1_angle2)
-        self.anglePosition(point2_angle1, point2_angle2)
-
 
     def anglePosition(self, motor1_degrees, motor2_degrees):
-        # Given two motor angles, compute the x and y coordinates of the end effector        
-        self.motor1_angle.append(self.motor1_angle[self.moveCounter]+motor1_degrees)
-        self.motor2_angle.append(self.motor2_angle[self.moveCounter]+motor2_degrees) 
+        # Given two motor angles, compute the x and y coordinates of the end effector
+        
+        # Write degrees to file for debugging
+        #self.file.write("motor1_degrees: " + str(motor1_degrees) + "\n" +
+        #                "motor2_degrees: " + str(motor2_degrees) + "\n")
+        
+        self.motor1_angle.append(motor1_degrees)
+        self.motor2_angle.append(motor2_degrees)
+        
         self.moveCounter += 1
  
         self.x_coordinate.append(self.l1*cos(radians(self.motor1_angle[self.moveCounter])) + (self.l2*cos(radians(self.motor1_angle[self.moveCounter]+self.motor2_angle[self.moveCounter]))))

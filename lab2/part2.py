@@ -24,7 +24,7 @@ def angle():
 
     file = open("part2_angle.out", "w")
     robot = MoveHandler(file)
-    robot.readAngles[3]
+    robot.readAngles(3)
     points_x.append(robot.x_coordinate[1])
     points_y.append(robot.y_coordinate[1])
     points_x.append(robot.x_coordinate[2] - points_x[0])
@@ -48,24 +48,8 @@ def angle():
     robot.file.write("Angle: " + str(difference) + "\n")
     file.close()
     
-def midpoint(input):
-    
-    file = open("midpoint.out", "w")
-    robot = MoveHandler(file)
-    robot.angleCoordinate()
-    x_midpoint = abs(robot.x_coordinate[1]-robot.x_coordinate[2])/2
-    y_midpoint = abs(robot.y_coordinate[1]-robot.y_coordinate[2])/2
-    
-    if input is "Analytic":
-        robot.positionAnalytic(x_midpoint,y_midpoint)
-    elif input is "Numerical":
-        robot.positionNumerical(x_midpoint,y_midpoint)
-    
-    robot.file.write("Distance: " + str(distance) + "\n")
-    file.close()
-    
 def main():
 
-    distance()
+    angle()
 
 main()
