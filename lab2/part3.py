@@ -15,8 +15,13 @@ Problem Number: 3
 Brief Program/Problem Description: 
 
 	Arm inverse kinematics, numerically and analytically
+    position: given an x and y position, compute the angles required for each motor and
+    move robot to the position
+    midpoint: allow user to read in two positions by moving arm and pressing touch sensor,
+    then calculate midpoint and move robot to the position
 
 Brief Solution Summary:
+    See movement.py
 
 Used Resources/Collaborators:
 	See movement.py

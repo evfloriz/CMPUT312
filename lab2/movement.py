@@ -18,7 +18,18 @@ Brief Program/Problem Description:
 
 Brief Solution Summary:
 
-    Other helper functions are implemented to facilitate this core functionality
+    readAngles: read in angles after a press of the touch sensor and append to list
+    anglePosition: calculate the position given angles of the motors using forward kinematics
+    anglePositionMove: calculate the positions given angles of the motors using forward kinematics, and
+    move motors those given angles
+    write_position_to_file: write the list of positions to file
+    update_ik_start: update the starting pos and angle to be used in the inverse kinematics equation, depending the
+    current position and angle fo the motors
+    positionAnalytic: move to position using analytical inverse kinematics
+    positionNumerical: move to position using numerical inverse kinematics
+    forwardKinematics: helper function to obtain position given angle
+    computeJacobian: helper function to compute the jacobian of the forward kinematics function given
+    the current angle guess
 
 Used Resources/Collaborators:
 	ev3dev API,
@@ -39,19 +50,16 @@ from time import sleep
 
 import mtx
 
-DEBUG = False
-
 class MoveHandler:
 
     def __init__(self, file):
         self.file = file
 
-        if (not DEBUG):
-            self.motor1 = LargeMotor(OUTPUT_A)
-            self.motor2 = LargeMotor(OUTPUT_B)
+        self.motor1 = LargeMotor(OUTPUT_A)
+        self.motor2 = LargeMotor(OUTPUT_B)
 
-        self.motor1_dir = -1
-        self.motor2_dir = 1        # motor2 direction is flipped
+        self.motor1_dir = -1        # motor2 direction is flipped
+        self.motor2_dir = 1
 
         self.motor1.position = 0
         self.motor2.position = 0
@@ -99,11 +107,7 @@ class MoveHandler:
 
     def anglePosition(self, motor1_degrees, motor2_degrees):
         # Given two motor angles, compute the x and y coordinates of the end effector
-        
-        # Write degrees to file for debugging
-        #self.file.write("motor1_degrees: " + str(motor1_degrees) + "\n" +
-        #                "motor2_degrees: " + str(motor2_degrees) + "\n")
-        
+
         self.motor1_angle.append(motor1_degrees)
         self.motor2_angle.append(motor2_degrees)
         
@@ -118,6 +122,7 @@ class MoveHandler:
     def anglePositionMove(self, motor1_degrees, motor2_degrees):
         # Given two motor angles, compute the x and y coordinates of the end effector
         # and move the motors
+
         self.anglePosition(motor1_degrees, motor2_degrees)
         
         self.motor1.on_for_degrees(self.speed, self.motor1_dir*motor1_degrees)
@@ -131,6 +136,7 @@ class MoveHandler:
     def update_ik_start(self):
         # Update start position and angle for inverse kinematics
         # functions based on the robot's current position
+
         self.ik_start_pos = [self.x_coordinate[-1], self.y_coordinate[-1]]
         self.ik_start_angles = [radians(self.motor1_angle[-1]), radians(self.motor2_angle[-1])]
 
@@ -143,7 +149,6 @@ class MoveHandler:
         if (self.ik_start_angles[1] < tolerance and self.ik_start_angles[1] > -tolerance):
             self.ik_start_angles[1] += 0.1
 
-        #self.ik_start_angles = [pi / 2, 0.1]
         self.file.write("ik start pos: " + str(self.ik_start_pos) + "\n" +
                         "ik start angle: " + str(self.ik_start_angles) + "\n")
 
@@ -158,9 +163,8 @@ class MoveHandler:
         motor1_degrees = self.motor1_dir * -(90 - degrees(theta1))
         motor2_degrees = self.motor2_dir * -degrees(theta2)
 
-        if (not DEBUG):
-            self.motor1.on_for_degrees(self.speed, motor1_degrees)
-            self.motor2.on_for_degrees(self.speed, motor2_degrees)
+        self.motor1.on_for_degrees(self.speed, motor1_degrees)
+        self.motor2.on_for_degrees(self.speed, motor2_degrees)
 
         self.file.write("motor degrees 1: " + str(motor1_degrees) + "\n" +
                         "motor degrees 2: " + str(motor2_degrees) + "\n" +
@@ -178,14 +182,12 @@ class MoveHandler:
         # W = point we want to go to
         # f(r) = evaluated point given our guess/iterated angle
 
-        # Points along trajectory
+        # To find points along trajectory:
         # trajectory = current pos - desired pos
         # step = trajectory / granularity
         # repeat granularity times
 
-        self.file.write("test\n")
-
-        angles = self.ik_start_angles            # x angle is 90 from 0
+        angles = self.ik_start_angles
         init_pos = self.ik_start_pos
 
         step = [x - init_pos[0], y - init_pos[1]]
@@ -211,23 +213,19 @@ class MoveHandler:
             motor1_degrees = self.motor1_dir * degrees(delta_angles[0])
             motor2_degrees = self.motor2_dir * degrees(delta_angles[1])
 
-            
-
             # Write state for debugging
             self.file.write("goal: " + str(goal) + "\n" +
                             "guess: " + str(guess) + "\n" +
                             "lhs: " + str(lhs) + "\n" +
                             "angles: " + str(angles) + "\n" +
                             "delta: " + str(delta_angles) + "\n" +
-
                             "motor degrees 1: " + str(motor1_degrees) + "\n" +
                             "motor degrees 2: " + str(motor2_degrees) + "\n" +
                             "-------------------\n")
 
-            if (not DEBUG):
-                self.motor1.on_for_degrees(self.speed, motor1_degrees)
-                self.motor2.on_for_degrees(self.speed, motor2_degrees)
-
+            # Move motors
+            self.motor1.on_for_degrees(self.speed, motor1_degrees)
+            self.motor2.on_for_degrees(self.speed, motor2_degrees)
 
 
     def forwardKinematics(self, angles):
@@ -250,18 +248,3 @@ class MoveHandler:
             [c, d]]
 
         return J
-
-    def midpoint(self, x1, y1, x2, y2):
-        # wait until button is pressed
-        # read angles
-        # put through forward kinematics to find pos1
-        # wait until button is pressed
-        # read angles
-        # put through forward kinematics to find pos2
-        # calculate midpoint
-        # use ik to find new angles
-        # use current angles and new angles to find relative angles
-        # move to position
-        pass
-
-
