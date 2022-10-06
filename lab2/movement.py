@@ -32,6 +32,8 @@ CMPUT 312 collaboration policy.
 
 from math import degrees, radians, pi, sin, cos, acos, asin, atan2, sqrt
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent
+from ev3dev2.sensor import INPUT_4
+from ev3dev2.sensor.lego import TouchSensor
 
 from time import sleep
 
@@ -61,6 +63,80 @@ class MoveHandler:
 
         self.current_pos = [0.0, 24.5]
         self.current_angles = [pi / 2, -0.1]
+
+        self.moveCounter = 0
+        self.motor1_angle = []
+        self.motor2_angle = []
+        self.x_coordinate = []
+        self.y_coordinate = []
+        self.motor1_angle.append(0)
+        self.motor2_angle.append(0)
+        self.x_coordinate.append(0)
+        self.y_coordinate.append(0)
+
+    def readAngles(self, numReads):
+        print("Ready!")
+        
+        # Record positions after some number of touch sensor inputs        
+        ts = TouchSensor(INPUT_4)
+        ts.MODE_TOUCH = 'TOUCH'
+
+        for i in range(numReads):
+            ts.wait_for_bump()
+            angle1 = -self.motor1.position
+            angle2 = self.motor2.position
+            
+            self.anglePosition(angle1, angle2)
+
+            self.file.write("Touched\n")
+            print("Touched")
+
+           
+    def angleCoordinate(self):
+        print("Ready!")
+        # Record positions after 2 touch sensor inputs
+        ts = TouchSensor(INPUT_4)
+        ts.MODE_TOUCH = 'TOUCH'
+        ts.wait_for_bump()
+        point1_angle1 = -self.motor1.position
+        point1_angle2 = self.motor2.position
+        self.file.write("Touched\n")
+        print("Touched")
+        ts.wait_for_bump()
+        point2_angle1 = -self.motor1.position
+        point2_angle2 = self.motor2.position
+        self.file.write("Touched\n")
+        print("Touched")
+        
+        self.anglePosition(point1_angle1, point1_angle2)
+        self.anglePosition(point2_angle1, point2_angle2)
+
+
+    def anglePosition(self, motor1_degrees, motor2_degrees):
+        # Given two motor angles, compute the x and y coordinates of the end effector        
+        self.motor1_angle.append(self.motor1_angle[self.moveCounter]+motor1_degrees)
+        self.motor2_angle.append(self.motor2_angle[self.moveCounter]+motor2_degrees) 
+        self.moveCounter += 1
+ 
+        self.x_coordinate.append(self.l1*cos(radians(self.motor1_angle[self.moveCounter])) + (self.l2*cos(radians(self.motor1_angle[self.moveCounter]+self.motor2_angle[self.moveCounter]))))
+        self.y_coordinate.append(self.l1*sin(radians(self.motor1_angle[self.moveCounter])) + (self.l2*sin(radians(self.motor1_angle[self.moveCounter]+self.motor2_angle[self.moveCounter]))))
+
+        self.write_position_to_file()
+
+
+    def anglePositionMove(self, motor1_degrees, motor2_degrees):
+        # Given two motor angles, compute the x and y coordinates of the end effector
+        # and move the motors
+        self.anglePosition(motor1_degrees, motor2_degrees)
+        
+        self.motor1.on_for_degrees(self.speed, self.motor1_dir*motor1_degrees)
+        self.motor2.on_for_degrees(self.speed, self.motor2_dir*motor2_degrees)
+
+
+    def write_position_to_file(self):
+        self.file.write("x: " + str(self.x_coordinate[1:]) + "\n" +
+                        "y: " + str(self.y_coordinate[1:]) + "\n")
+
     
     def positionAnalytic(self, x, y):
         # Calculate motor angles geometrically
@@ -107,8 +183,6 @@ class MoveHandler:
         step[0] /= self.granularity
         step[1] /= self.granularity
 
-        self.file.write("part3 test\n")
-
         for i in range(self.granularity):
             # Compute LHS of equation with current angles guess
             goal = [init_pos[0] + i * step[0], init_pos[1] + i * step[1]]        # current goal is one more step length away from initial
@@ -143,22 +217,18 @@ class MoveHandler:
                             "motor degrees 2: " + str(motor2_degrees) + "\n" +
                             "-------------------\n")
 
-            #sleep(1.0)
 
 
     def forwardKinematics(self, angles):
         # Return current x and y of end effector given joint angles (in radians)
         posX = self.l2 * cos(angles[0] + angles[1]) + self.l1 * cos(angles[0])
         posY = self.l2 * sin(angles[0] + angles[1]) + self.l1 * sin(angles[0])
-
-        #self.current_pos[0] = posX
-        #self.current_pos[1] = posY
-        
-        #self.write_pos_to_file()
         
         return [posX, posY]
 
+
     def computeJacobian(self, angles):
+        # Compute the current jacobian of f(r) given r
         a = -self.l2 * sin(angles[0] + angles[1]) - self.l1 * sin(angles[0])
         b = -self.l2 * sin(angles[0] + angles[1])
 
@@ -182,9 +252,5 @@ class MoveHandler:
         # use current angles and new angles to find relative angles
         # move to position
         pass
-
-    def write_pos_to_file(self):
-        self.file.write("x: " + self.current_pos[0] + "\n" +
-                        "y: " + self.current_pos[1] + "\n")
 
 

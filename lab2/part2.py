@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+
+from math import atan, degrees, sqrt
+from time import sleep
+from movement import MoveHandler
+from ev3dev2.sensor import INPUT_4
+from ev3dev2.sensor.lego import TouchSensor
+    
+def distance():
+    
+    file = open("part2_distance.out", "w")
+    robot = MoveHandler(file)
+    robot.readAngles(2)
+    x_distance = abs(robot.x_coordinate[1]-robot.x_coordinate[2])
+    y_distance = abs(robot.y_coordinate[1]-robot.y_coordinate[2])
+    distance = sqrt(x_distance**2 + y_distance**2)
+    robot.file.write("Distance: " + str(distance) + "\n")
+    file.close()
+    
+def angle():
+    
+    points_x = []
+    points_y = []
+
+    file = open("part2_angle.out", "w")
+    robot = MoveHandler(file)
+    robot.readAngles[3]
+    points_x.append(robot.x_coordinate[1])
+    points_y.append(robot.y_coordinate[1])
+    points_x.append(robot.x_coordinate[2] - points_x[0])
+    points_y.append(robot.y_coordinate[2] - points_y[0])
+    points_x.append(robot.x_coordinate[3] - points_x[0])
+    points_y.append(robot.y_coordinate[3] - points_y[0])
+    
+    angle1 = degrees(atan(points_y[1]/points_x[1]))
+    angle2 = degrees(atan(points_y[2]/points_x[2]))
+    
+    if points_x[1] < 0:   
+        
+        angle1 = 180 + angle1
+    
+    if points_x[2] < 0:
+        
+        angle2 = 180 + angle2
+
+    difference = abs(angle1 - angle2)
+    
+    robot.file.write("Angle: " + str(difference) + "\n")
+    file.close()
+    
+def midpoint(input):
+    
+    file = open("midpoint.out", "w")
+    robot = MoveHandler(file)
+    robot.angleCoordinate()
+    x_midpoint = abs(robot.x_coordinate[1]-robot.x_coordinate[2])/2
+    y_midpoint = abs(robot.y_coordinate[1]-robot.y_coordinate[2])/2
+    
+    if input is "Analytic":
+        robot.positionAnalytic(x_midpoint,y_midpoint)
+    elif input is "Numerical":
+        robot.positionNumerical(x_midpoint,y_midpoint)
+    
+    robot.file.write("Distance: " + str(distance) + "\n")
+    file.close()
+    
+def main():
+
+    distance()
+
+main()
