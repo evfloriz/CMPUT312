@@ -83,8 +83,3 @@ def main():
     midpoint("Numerical")
 
 main()
-
-
-
-# change granularity to see when jacobian works and when inaccurate
-# accuracy vs repeatability
