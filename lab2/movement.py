@@ -64,8 +64,9 @@ class MoveHandler:
 
         self.granularity = 30
 
-        self.current_pos = [0.0, 24.5]
-        self.current_angles = [pi / 2, -0.1]
+        # Start angles for inverse kinematics
+        self.ik_start_pos = [0.0, 24.5]
+        self.ik_start_angles = [pi / 2, -0.1]
 
         self.moveCounter = 0
         self.motor1_angle = []
@@ -82,7 +83,6 @@ class MoveHandler:
         # Record positions after some number of touch sensor inputs
         ts = TouchSensor(INPUT_4)
         ts.MODE_TOUCH = 'TOUCH'
-
 
         print("Ready!")
 
@@ -128,15 +128,31 @@ class MoveHandler:
         self.file.write("x: " + str(self.x_coordinate[1:]) + "\n" +
                         "y: " + str(self.y_coordinate[1:]) + "\n")
 
-    
+    def update_ik_start(self):
+        # Update start position and angle for inverse kinematics
+        # functions based on the robot's current position
+        self.ik_start_pos = [self.x_coordinate[-1], self.y_coordinate[-1]]
+        self.ik_start_angles = [radians(self.motor1_angle[-1]), radians(self.motor2_angle[-1])]
+
+        tolerance = 0.01
+
+        # Avoid singularities if one angle is almost 0
+        if (self.ik_start_angles[0] < tolerance and self.ik_start_angles[0] > -tolerance):
+            self.ik_start_angles[0] += 0.1
+            
+        if (self.ik_start_angles[1] < tolerance and self.ik_start_angles[1] > -tolerance):
+            self.ik_start_angles[1] += 0.1
+
+        #self.ik_start_angles = [pi / 2, 0.1]
+        self.file.write("ik start pos: " + str(self.ik_start_pos) + "\n" +
+                        "ik start angle: " + str(self.ik_start_angles) + "\n")
+
+
     def positionAnalytic(self, x, y):
         # Calculate motor angles geometrically
         # See report for derivation
         theta2 = acos((x**2 + (y**2) - self.l1**2 - self.l2**2) / (2 * self.l1 * self.l2))
         theta1 = asin((self.l2 * sin(theta2)) / sqrt(x**2 + y**2)) + atan2(y, x)
-
-        self.file.write("theta1: " + str(theta1) + " theta2: " + str(theta2) + "\n")
-        self.file.write("theta1 deg: " + str(90 - degrees(theta1)) + " theta2 deg: " + str(degrees(theta2)) + "\n")
 
         # Move motors toward calculated angle
         motor1_degrees = self.motor1_dir * -(90 - degrees(theta1))
@@ -167,8 +183,10 @@ class MoveHandler:
         # step = trajectory / granularity
         # repeat granularity times
 
-        angles = self.current_angles            # x angle is 90 from 0
-        init_pos = self.current_pos
+        self.file.write("test\n")
+
+        angles = self.ik_start_angles            # x angle is 90 from 0
+        init_pos = self.ik_start_pos
 
         step = [x - init_pos[0], y - init_pos[1]]
         step[0] /= self.granularity
@@ -176,7 +194,7 @@ class MoveHandler:
 
         for i in range(self.granularity):
             # Compute LHS of equation with current angles guess
-            goal = [init_pos[0] + i * step[0], init_pos[1] + i * step[1]]        # current goal is one more step length away from initial
+            goal = [init_pos[0] + (i + 1) * step[0], init_pos[1] + (i + 1) * step[1]]        # current goal is one more step length away from initial
             guess = self.forwardKinematics(angles)
             lhs = [goal[0] - guess[0], goal[1] - guess[1]]
 
@@ -193,9 +211,7 @@ class MoveHandler:
             motor1_degrees = self.motor1_dir * degrees(delta_angles[0])
             motor2_degrees = self.motor2_dir * degrees(delta_angles[1])
 
-            if (not DEBUG):
-                self.motor1.on_for_degrees(self.speed, motor1_degrees)
-                self.motor2.on_for_degrees(self.speed, motor2_degrees)
+            
 
             # Write state for debugging
             self.file.write("goal: " + str(goal) + "\n" +
@@ -207,6 +223,10 @@ class MoveHandler:
                             "motor degrees 1: " + str(motor1_degrees) + "\n" +
                             "motor degrees 2: " + str(motor2_degrees) + "\n" +
                             "-------------------\n")
+
+            if (not DEBUG):
+                self.motor1.on_for_degrees(self.speed, motor1_degrees)
+                self.motor2.on_for_degrees(self.speed, motor2_degrees)
 
 
 

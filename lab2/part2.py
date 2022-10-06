@@ -7,6 +7,11 @@ from ev3dev2.sensor import INPUT_4
 from ev3dev2.sensor.lego import TouchSensor
     
 def distance():
+    # Get positions from motor angles after two button presses
+    # and calculate the distance between them.
+
+    # Robot must start at angle 0, 0 (arm pointing straight
+    # and to the right)
     
     file = open("part2_distance.out", "w")
     robot = MoveHandler(file)
@@ -18,6 +23,12 @@ def distance():
     file.close()
     
 def angle():
+    # Get positions from motor angles after three button presses
+    # and compute the angle of the lines formed by points 1 and 2
+    # and points 1 and 3, with point 1 being their intersection.
+
+    # Robot must start at angle 0, 0 (arm pointing straight
+    # and to the right)
     
     points_x = []
     points_y = []
