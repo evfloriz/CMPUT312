@@ -30,7 +30,8 @@ class Client:
         self.s.send("RESET".encode("UTF-8"))
 
 
-host = "192.168.0.2"
+host = "172.17.0.1"
+#host = "localhost"
 port = 9999
 client = Client(host, port)
 i = 0

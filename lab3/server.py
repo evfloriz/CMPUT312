@@ -46,10 +46,12 @@ class Server:
 
 
         
-host = "192.168.0.2"
+host = "172.17.0.1"
+#host = "localhost"
 port = 9999
 server = Server(host, port)
 queue = Queue()
 
 while True:
-    timer.sleep(2)
+    server.sendAngles(10, 10, queue)
+    time.sleep(2)
