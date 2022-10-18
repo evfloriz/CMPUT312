@@ -44,21 +44,25 @@ class Server:
     def sendDisableSafetyMode(self):
         self.cs.send("SAFETY_OFF".encode("UTF-8"))
 
+    def close(self):
+        self.cs.close()
+
 
         
-#host = "172.17.0.1"
-host = "localhost"
+host = "172.17.0.1"
+#host = "localhost"
 port = 9999
 server = Server(host, port)
 queue = Queue()
 
 i = 0
 while i < 3:
-    server.sendAngles(10 + i, 10 + i, queue)
+    server.sendAngles(10, 10, queue)
     i += 1
-    time.sleep(1)
+    #time.sleep(1)
     response = queue.get()
     print(response)
 
 server.sendTermination()
 print("Exiting server")
+time.sleep(1)
