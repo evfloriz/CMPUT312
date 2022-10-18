@@ -46,12 +46,19 @@ class Server:
 
 
         
-host = "172.17.0.1"
-#host = "localhost"
+#host = "172.17.0.1"
+host = "localhost"
 port = 9999
 server = Server(host, port)
 queue = Queue()
 
-while True:
-    server.sendAngles(10, 10, queue)
-    time.sleep(2)
+i = 0
+while i < 3:
+    server.sendAngles(10 + i, 10 + i, queue)
+    i += 1
+    time.sleep(1)
+    response = queue.get()
+    print(response)
+
+server.sendTermination()
+print("Exiting server")

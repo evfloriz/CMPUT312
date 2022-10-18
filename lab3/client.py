@@ -1,6 +1,3 @@
-#!/usr/bin/python3       
-# RUN ON BRICK
-    
 import socket
 import os
 import time
@@ -29,13 +26,3 @@ class Client:
     def sendReset(self):
         self.s.send("RESET".encode("UTF-8"))
 
-
-host = "172.17.0.1"
-#host = "localhost"
-port = 9999
-client = Client(host, port)
-i = 0
-while True:
-    print(client.pollData())
-    time.sleep(1)
-    client.sendDone()
