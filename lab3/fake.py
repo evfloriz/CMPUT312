@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent
+#from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent
 import time
 from client import Client
 
@@ -12,18 +12,12 @@ class Robot:
         self.client = Client(host, port)
 
         # Motor data
-        self.motor1 = LargeMotor(OUTPUT_A)
-        self.motor2 = LargeMotor(OUTPUT_B)
-        self.motor1_dir = -1        # motor1 direction is flipped
-        self.motor2_dir = 1
+        #self.motor1 = LargeMotor(OUTPUT_A)
+        #self.motor2 = LargeMotor(OUTPUT_B)
+        #self.motor1_dir = -1        # motor1 direction is flipped
+        #self.motor2_dir = 1
 
-        self.speed = SpeedPercent(10)
-
-        self.file = open("robot.out", "w")
-
-    def __del__(self):
-        self.client.close()
-        self.file.close()
+        #self.speed = SpeedPercent(10)
 
     def getAnglesFromServer(self):
         while True:
@@ -34,25 +28,31 @@ class Robot:
                 break
             
             # Move to angle sent by server
-            self.moveToAngle(float(data[0]), float(data[1]))
-            time.sleep(1)
+            #self.moveToAngle(float(data[0]), float(data[1]))
+            time.sleep(3)
 
             # Send done
             self.client.sendDone()
+            time.sleep(1)
 
-        self.file.write("Exiting client\n")
+        print("Exiting client")
 
 
     def moveToAngle(self, base_angle, joint_angle):
-        self.file.write("Moving to " + str(base_angle) + ", " + str(joint_angle) + "\n")
+        print("moving to " + str(base_angle) + " " + str(joint_angle))
         motor1_degrees = base_angle * self.motor1_dir
         motor2_degrees = joint_angle * self.motor2_dir
         self.motor1.on_for_degrees(self.speed, motor1_degrees)
         self.motor2.on_for_degrees(self.speed, motor2_degrees)
 
 
+            
+
+
 def main():
     robot = Robot()
     robot.getAnglesFromServer()
+    time.sleep(10)
+
 
 main()

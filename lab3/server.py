@@ -10,6 +10,7 @@ class Server:
     def __init__(self, host, port):
        # setup server socket
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # We need to use the ip address that shows up in ipconfig for the usb ethernet adapter that handles the comunication between the PC and the brick
         print("Setting up Server\nAddress: " + host + "\nPort: " + str(port))
         
@@ -57,12 +58,13 @@ queue = Queue()
 
 i = 0
 while i < 3:
-    server.sendAngles(10, 10, queue)
+    server.sendAngles(20, 20, queue)
     i += 1
-    #time.sleep(1)
     response = queue.get()
-    print(response)
+    print("Received: " + response)
 
 server.sendTermination()
+#response = queue.get()
+#print(response)
 print("Exiting server")
 time.sleep(1)

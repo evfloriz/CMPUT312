@@ -26,3 +26,6 @@ class Client:
     def sendReset(self):
         self.s.send("RESET".encode("UTF-8"))
 
+    def close(self):
+        self.s.close()
+
