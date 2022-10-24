@@ -1,9 +1,5 @@
-#!/usr/bin/python
-# RUN ON LAPTOP USING PYTHON 3.6
-
 import socket
 import time
-from queue import Queue
 
 # This class handles the Server side of the comunication between the laptop and the brick.
 class Server:
@@ -47,24 +43,3 @@ class Server:
 
     def close(self):
         self.cs.close()
-
-
-        
-host = "172.17.0.1"
-#host = "localhost"
-port = 9999
-server = Server(host, port)
-queue = Queue()
-
-i = 0
-while i < 3:
-    server.sendAngles(20, 20, queue)
-    i += 1
-    response = queue.get()
-    print("Received: " + response)
-
-server.sendTermination()
-#response = queue.get()
-#print(response)
-print("Exiting server")
-time.sleep(1)
