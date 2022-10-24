@@ -17,7 +17,7 @@ class Robot:
         self.motor1_dir = -1        # motor1 direction is flipped
         self.motor2_dir = 1
 
-        self.speed = SpeedPercent(10)
+        self.speed = SpeedPercent(5)
 
         self.file = open("robot.out", "w")
 
@@ -35,7 +35,6 @@ class Robot:
             
             # Move to angle sent by server
             self.moveToAngle(float(data[0]), float(data[1]))
-            time.sleep(1)
 
             # Send done
             self.client.sendDone()
@@ -47,8 +46,10 @@ class Robot:
         self.file.write("Moving to " + str(base_angle) + ", " + str(joint_angle) + "\n")
         motor1_degrees = base_angle * self.motor1_dir
         motor2_degrees = joint_angle * self.motor2_dir
-        self.motor1.on_for_degrees(self.speed, motor1_degrees)
-        self.motor2.on_for_degrees(self.speed, motor2_degrees)
+        self.motor1.on_for_degrees(self.speed, motor1_degrees, brake=False, block=False)
+        self.motor2.on_for_degrees(self.speed, motor2_degrees, brake=False, block=False)
+        self.motor1.wait_until_not_moving()
+        self.motor2.wait_until_not_moving()
 
 
 def main():

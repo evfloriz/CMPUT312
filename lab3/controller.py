@@ -18,57 +18,65 @@ class Controller:
         # Length of link 1 and 2 in cm
         self.l1 = 16.0
         self.l2 = 8.5
-
         
 
     def sendAngles(self, motor1_degrees, motor2_degrees):
-        
-        self.server.sendAngles(motor1_degrees, motor2_degrees, self.queue)
-            
+        self.server.sendAngles(motor1_degrees, motor2_degrees, self.queue)            
         response = self.queue.get()
         print("Received: " + response)
 
-        
 
     def straightLine(self, pos1, pos2):
-        stepSize = 10
+        trajectory = []
+        
+        numSteps = 10
 
-        vector = [pos2[0] - pos1[0], pos2[1] - pos1[1]]
-        vector = [vector[0] / stepSize, vector[1] / stepSize]
+        step = [pos2[0] - pos1[0], pos2[1] - pos1[1]]
+        step = [step[0] / numSteps, step[1] / numSteps]
 
-        print(vector)
+        print(step)
+        
+        # Go to the first pos and initialize values to update iteratively
+        angles = self.buildTrajectory(trajectory, [0, 0], pos1)
+        stepPos = pos1
 
         i = 0
-        while (i < 1):
-            angles = self.goToPos([0, 0], [15, 15])
-            self.goToPos(angles, [-15, 15])
+        while (i < numSteps):
+            stepPos = [stepPos[0] + step[0], stepPos[1] + step[1]]
+            print(stepPos)
+            angles = self.buildTrajectory(trajectory, angles, stepPos)
             i += 1
 
-    def goToPos(self, startAngles, pos):
+        self.executeTrajectory(trajectory)
+
+    def buildTrajectory(self, trajectory, startAngles, pos):
         x = pos[0]
         y = pos[1]
 
         # Calculate motor angles geometrically
         theta2 = acos((x**2 + (y**2) - self.l1**2 - self.l2**2) / (2 * self.l1 * self.l2))
         theta1 = asin((self.l2 * sin(theta2)) / sqrt(x**2 + y**2)) + atan2(y, x)
-
+        
         # Calculate the goal angle from [0, 0]
         motor1_goal = degrees(theta1)
         motor2_goal = -degrees(theta2)
 
         # Calculate the correct distance to move in order to reach the goal angle
-        # give the current angle after the previous motion
+        # given the current angle after the previous motion
         motor1_degrees = motor1_goal - startAngles[0]
         motor2_degrees = motor2_goal - startAngles[1]
 
-        self.sendAngles(motor1_degrees, motor2_degrees)
+        #self.sendAngles(motor1_degrees, motor2_degrees)
+        trajectory.append([motor1_degrees, motor2_degrees])
         
-        return [motor1_degrees, motor2_degrees]
+        return [motor1_goal, motor2_goal]
+
+    def executeTrajectory(self, trajectory):
+        for angles in trajectory:
+            self.sendAngles(angles[0], angles[1])
 
     def exit(self):
         self.server.sendTermination()
-        #response = queue.get()
-        #print(response)
         print("Exiting server")
         time.sleep(1)
 
