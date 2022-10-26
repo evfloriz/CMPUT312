@@ -43,54 +43,67 @@ class Controller:
     
     
     def initialize(self):
-        theta1_wiggle = 20        
+        theta1_wiggle = 20
         theta2_wiggle = 20
         
         # keep looking until a valid goal has been found
-        #goal = [0, 0]
-        #while (goal[0] == 0 or goal[1] == 0):
+        goal = [0, 0, 0]
+        point1 = [0, 0, 0]
+        while (goal[0] == 0 or goal[1] == 0):
             # Get robot u and v
-            #point1, goal = self.track()
+            point1, goal = self.track()
             #print(goal)
         
-        return
-        
         # Wiggle robot
-        self.sendAngles(theta1_wiggle, 0)
-        time.sleep(1)
+        if (connect):
+            self.sendAngles(theta1_wiggle, 0)
+            time.sleep(1)
 
         # Get robot u and v
         point2, goal2 = self.track()
         
-        self.sendAngles(0, theta2_wiggle)
-        time.sleep(1)
+        if (connect):
+            self.sendAngles(0, theta2_wiggle)
+            time.sleep(1)
         
         point3, goal3 = self.track()
         
         # Return initial Jacobian
-        return np.array([[(point2[0]-point1[0])/theta1_wiggle, (point3[0]-point2[0])/theta2_wiggle],
-                  [(point2[1] - point1[1])/theta1_wiggle, (point3[1]-point2[1])/theta2_wiggle]])
+        dudt1 = (point2[0] - point1[0])/theta1_wiggle
+        dudt2 = (point3[0] - point2[0])/theta2_wiggle
+        dvdt1 = (point2[1] - point1[1])/theta1_wiggle
+        dvdt2 = (point3[1] - point2[1])/theta2_wiggle
+
+        return np.array([[dudt1, dudt2],
+                        [dvdt1, dvdt2]])
             
     
-    def uvs(self, alpha, lambd, error_size):
-        
-        # Initialize u and v points
-        u_points = np.zeros(1)
-        v_points = np.zeros(1)
-        counter = 0
-        
+    def uvs(self):
+        # parameters
+        a = 1
+        l = 0.1
+        error_size = 50
+     
         # Wiggle and initialize jacobian
         jacobian = self.initialize()
         
         # Get initial robot u and v and error
-        point_u, point_v, tracker_u, tracker_v = self.track()
-        u_points[0] = point_u
-        v_points[0] = point_v
-        error = np.array([[(tracker_u - point_u)], [-(tracker_v - point_v)]])
+        point, goal = self.track()
+        points = np.array(point[0])
+        counter = 0
+
+        error = np.array([[goal[0] - point[0]], [goal[1] - point[1]]])
+        error_norm = np.linalg.norm(error)
+
+        print(error)
+        print(error_norm)
+
+        return
         
         # Broyden update
-        i = 0
-        while (abs(np.sqrt(error[0]**2+error[1]**2)) > error_size):
+        while (error_norm > error_size):
+            
+            
             
             if i == 3:
                 self.exit()
@@ -145,10 +158,11 @@ class Controller:
 def main():
     controller = Controller()
     
-    controller.initialize()
+    #controller.initialize()
     
     while (True):
-        controller.print_data()
+        #controller.print_data()
+        controller.uvs()
         time.sleep(1)
     
     #controller.uvs(1, 0.2, 50)
