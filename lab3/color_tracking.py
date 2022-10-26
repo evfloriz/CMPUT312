@@ -11,11 +11,11 @@ import time
 
 #####HSV Colour Ranges#################
 #If the ball is red (0-10) or (170-180)
-redLowMask = (0,50,50)
+redLowMask = (0,5,50)
 redHighMask = (10, 255, 255)
 
 #If the ball is blue
-blueLowMask = (100, 150, 0)
+blueLowMask = (100, 50, 0)
 blueHighMask = (140, 255, 255)
 
 #If the ball is orange
@@ -30,8 +30,8 @@ greenHighMask= (150, 255, 255)
 class Tracker:
 
     def __init__(self, pointColor, goalColor):
-        self.point = (0,0,0)
-        self.goal = (0,0,0)
+        self.point = [(0,0,0)]
+        self.goal = [(0,0,0)]
         thread = threading.Thread(target=self.TrackerThread, args=(pointColor, goalColor), daemon=True)
         thread.start()
 

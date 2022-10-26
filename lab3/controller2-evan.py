@@ -9,14 +9,20 @@ from queue import Queue
 from math import sin, asin, acos, atan2, degrees, sqrt
 import numpy as np
 
+connect = False
+
 class Controller:
     
     def __init__(self):
-        self.host = "142.244.172.63"
+        #self.host = "142.244.172.63"
+        self.host = "172.17.0.1"
+
         #host = "localhost"
         self.port = 9999
         self.tracker = Tracker('b', 'r')
-        self.server = Server(self.host, self.port)
+        
+        if (connect):
+            self.server = Server(self.host, self.port)
         self.queue = Queue()
 
         # Length of link 1 and 2 in cm
@@ -33,33 +39,38 @@ class Controller:
 
 
     def track(self):
-        print("Tracker Setup")
-        print("Moving on")
-        return self.tracker.point[0][0], self.tracker.point[0][1], self.tracker.goal[0][0], self.tracker.goal[0][1]
+        return [self.tracker.point[0], self.tracker.goal[0]]
     
     
-    def initialize(self, theta1_wiggle, theta2_wiggle):
+    def initialize(self):
+        theta1_wiggle = 20        
+        theta2_wiggle = 20
         
-        # Get robot u and v
-        point_u, point_v, tracker_u, tracker_v = self.track()
+        # keep looking until a valid goal has been found
+        #goal = [0, 0]
+        #while (goal[0] == 0 or goal[1] == 0):
+            # Get robot u and v
+            #point1, goal = self.track()
+            #print(goal)
+        
+        return
         
         # Wiggle robot
         self.sendAngles(theta1_wiggle, 0)
         time.sleep(1)
+
         # Get robot u and v
-        point_u1, point_v1, tracker_u, tracker_v = self.track()
+        point2, goal2 = self.track()
         
         self.sendAngles(0, theta2_wiggle)
         time.sleep(1)
         
-        point_u2, point_v2, tracker_u, tracker_v = self.track()
-        
-        return np.array([[(point_u1-point_u)/theta1_wiggle, (point_u2-point_u1)/theta2_wiggle],
-                  [(point_v1-point_v)/theta1_wiggle, (point_v2-point_v1)/theta2_wiggle]])
+        point3, goal3 = self.track()
         
         # Return initial Jacobian
-        #return np.array([[abs(point_u-point_u1)/theta1_wiggle, abs(point_u-point_u1)/theta2_wiggle], [abs(point_v-point_v1)/theta1_wiggle, abs(point_v-point_v1)/theta2_wiggle]])
-    
+        return np.array([[(point2[0]-point1[0])/theta1_wiggle, (point3[0]-point2[0])/theta2_wiggle],
+                  [(point2[1] - point1[1])/theta1_wiggle, (point3[1]-point2[1])/theta2_wiggle]])
+            
     
     def uvs(self, alpha, lambd, error_size):
         
@@ -69,7 +80,7 @@ class Controller:
         counter = 0
         
         # Wiggle and initialize jacobian
-        jacobian = self.initialize(20,20)
+        jacobian = self.initialize()
         
         # Get initial robot u and v and error
         point_u, point_v, tracker_u, tracker_v = self.track()
@@ -79,7 +90,7 @@ class Controller:
         
         # Broyden update
         i = 0
-        while (np.sqrt(error[0]**2+error[1]**2) > error_size):
+        while (abs(np.sqrt(error[0]**2+error[1]**2)) > error_size):
             
             if i == 3:
                 self.exit()
@@ -90,7 +101,7 @@ class Controller:
             
             # Get theta and move robot
             #theta = np.matmul(lambd*jacobian, error)
-            theta = lambd * np.matmul(np.linalg.pinv(jacobian), error)
+            theta = np.matmul(lambd*np.linalg.pinv(jacobian), error)
             print(theta)
             self.sendAngles(theta[0][0], theta[1][0])
             time.sleep(1)
@@ -115,15 +126,32 @@ class Controller:
         
 
     def exit(self):
-        self.server.sendTermination()
-        print("Exiting server")
-        time.sleep(1)
+        if (connect):
+            self.server.sendTermination()
+            print("Exiting server")
+            time.sleep(1)
+
+    def print_data(self):
+        data = self.track()
+        print("u: " + str(data[0]))
+        print("v: " + str(data[1]))
+        #print("u - v: [" + str(data[0][0] - data[1][0]) + " " + str(data[0][1] - data[1][1]) + "]")
+        
+        #print(str(data[0][0][0]))
+        #print("---------------")
+        #print(data)
 
 
 def main():
     controller = Controller()
     
-    controller.uvs(1, 0.2, 50)
+    controller.initialize()
+    
+    while (True):
+        controller.print_data()
+        time.sleep(1)
+    
+    #controller.uvs(1, 0.2, 50)
     
     controller.exit()
 
