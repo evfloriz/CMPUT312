@@ -7,6 +7,7 @@ from client import Client
 class Robot:
     def __init__(self):
         host = "172.17.0.1"
+        #host = "142.244.172.63"
         #host = "localhost"
         port = 9999
         self.client = Client(host, port)
