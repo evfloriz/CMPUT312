@@ -39,7 +39,26 @@ class Controller:
 
 
     def track(self):
-        return [self.tracker.point[0], self.tracker.goal[0]]
+        avg_point = [0, 0]
+        avg_goal = [0, 0]
+
+        num = 10
+
+        for i in range(num):
+            avg_point[0] += self.tracker.point[0][0]
+            avg_point[1] += self.tracker.point[0][1]
+
+            avg_goal[0] += self.tracker.goal[0][0]
+            avg_goal[1] += self.tracker.goal[0][1]
+
+            time.sleep(0.05)
+
+        avg_point[0] /= num
+        avg_point[1] /= num
+        avg_goal[0] /= num
+        avg_goal[1] /= num
+
+        return [avg_point, avg_goal]
     
     
     def initialize(self):
