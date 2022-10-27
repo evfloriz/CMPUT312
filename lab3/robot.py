@@ -26,7 +26,6 @@ Brief Solution Summary:
 Used Resources/Collaborators:
     client.py
 	
-
 I/we hereby certify that I/we have produced the following solution 
 using only the resources listed above in accordance with the 
 CMPUT 312 collaboration policy.

@@ -1,6 +1,47 @@
 #!/usr/bin/python
 # RUN ON LAPTOP USING PYTHON 3.6
 
+'''
+Group Members: Evan Florizone, Yiyan Zhang
+
+Date: Oct 26, 2022
+ 
+Brick Number: g10
+
+Lab Number: 3
+
+Problem Number: 2
+ 
+Brief Program/Problem Description:
+    Handle server-side code for the robot. The goal is to use visual servoing
+    to move toward a goal point.
+
+Brief Solution Summary:
+    sendAngles - send angles to the client and wait for a response.
+    track - receive the positions of point and goal from the color tracker. In
+    order to smooth some of the jittery data, 10 points are read at 0.05 second
+    intervals and the average is returned.
+    initialize - create the initial Jacobian by wiggling first the base motor,
+    then the joint motor and recording the change in pixel values tracked by
+    the color tracker.
+    uvs - perform uncalibrated visual servoing. First initialize is called and the
+    first point is read in including the error. Then find q_delta from initial error
+    and Jacobian, then move the robot those angles and record the y_delta and error
+    after the motion. Then update the Jacobian using the previous Jacobian, q_delta,
+    y_delta, and error using Broyden's method. Repeat until the error is within the
+    specified amount.
+
+Used Resources/Collaborators:
+    uvs3.jpg - lab notes
+    visual servoing lecture slides
+    color_tracking.py
+    server.py
+	
+I/we hereby certify that I/we have produced the following solution 
+using only the resources listed above in accordance with the 
+CMPUT 312 collaboration policy.
+'''
+
 import time
 from tracemalloc import start
 from server import Server
@@ -14,8 +55,8 @@ connect = True
 class Controller:
     
     def __init__(self):
-        #self.host = "142.244.172.63"
-        self.host = "172.17.0.1"
+        host = "142.244.173.149"
+        #host = "172.17.0.1"
 
         #host = "localhost"
         self.port = 9999

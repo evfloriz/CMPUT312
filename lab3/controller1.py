@@ -1,6 +1,40 @@
 #!/usr/bin/python
 # RUN ON LAPTOP USING PYTHON 3.6
 
+'''
+Group Members: Evan Florizone, Yiyan Zhang
+
+Date: Oct 26, 2022
+ 
+Brick Number: g10
+
+Lab Number: 3
+
+Problem Number: 1
+ 
+Brief Program/Problem Description: 
+    Handle server-side code for the robot. The goal is to move in a straight
+    line between two points.
+
+Brief Solution Summary:
+    sendAngles - send angles to the client and wait for a response.
+    straightLine - given two points, find a vector describing their direction
+    and divide it into a number of steps. Use buildTrajectory to build a
+    trajectory along the line and executeTrajectory to move motors along the
+    trajectory.
+    buildTrajectory - Use analytic inverse kinematics from lab 2 to find the
+    correct angle movements to reach the position of the next step from the previous
+    step, and add them to the trajectory list.
+    executeTrajectory - Send each angle in the trajectory list to the robot.
+    
+Used Resources/Collaborators:
+    server.py
+
+I/we hereby certify that I/we have produced the following solution 
+using only the resources listed above in accordance with the 
+CMPUT 312 collaboration policy.
+'''
+
 import time
 from tracemalloc import start
 from server import Server
@@ -81,8 +115,6 @@ class Controller:
         time.sleep(1)
 
 
-
-
 def main():
     controller = Controller()
     
@@ -93,6 +125,3 @@ def main():
     controller.exit()
 
 main()
-
-        
-

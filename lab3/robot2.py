@@ -1,5 +1,31 @@
 #!/usr/bin/env python3
 
+'''
+Group Members: Evan Florizone, Yiyan Zhang
+
+Date: Oct 26, 2022
+ 
+Brick Number: g10
+
+Lab Number: 3
+
+Problem Number: 1 and 2
+ 
+Brief Program/Problem Description: 
+    Same as robot1 but for Evan's ip address.
+
+Brief Solution Summary:
+    Same as robot1.
+
+Used Resources/Collaborators:
+    client.py
+	
+
+I/we hereby certify that I/we have produced the following solution 
+using only the resources listed above in accordance with the 
+CMPUT 312 collaboration policy.
+'''
+
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent
 import time
 from client import Client
@@ -7,8 +33,6 @@ from client import Client
 class Robot:
     def __init__(self):
         host = "172.17.0.1"
-        #host = "142.244.172.63"
-        #host = "localhost"
         port = 9999
         self.client = Client(host, port)
 
