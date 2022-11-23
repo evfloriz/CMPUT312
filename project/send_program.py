@@ -26,8 +26,7 @@ class Server:
     def sendProgram(self, program_name):
         # Open program and read as string
         file = open(program_name, "r")
-        program = str(file.read())
-        print(program)
+        
         
         # Send program name to client
         print("Sending name: " + program_name + " to robot.")
@@ -36,15 +35,23 @@ class Server:
         reply = self.cs.recv(128).decode("UTF-8")
         self.queue.put(reply)
 
-        # Send program to client
-        print("Sending program: " + program_name + " to robot.")
-        self.cs.send(program.encode("UTF-8"))
-        # Waiting for the client (ev3 brick) to let the server know that it has received data
-        reply = self.cs.recv(128).decode("UTF-8")
-        self.queue.put(reply)
+        # Send program to client in 1024 byte chunks
+        i = 0
+        while True:
 
-    # Sends a termination message to the client. This will cause the client to exit "cleanly", after stopping the motors.
-    def sendTermination(self):
+            program_chunk = str(file.read(1024))
+            if not program_chunk:
+                break
+
+            print("Sending program chunk: " + str(i) + " to robot.")
+            self.cs.send(program_chunk.encode("UTF-8"))
+            # Waiting for the client (ev3 brick) to let the server know that it has received data
+            reply = self.cs.recv(1024).decode("UTF-8")
+            self.queue.put(reply)
+
+            i += 1
+        
+        # Send termination
         self.cs.send("EXIT".encode("UTF-8"))
 
     def close(self):

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, SpeedPercent
+#from ev3dev2.sensor import GyroSensor, INPUT_1
+#from ev3dev2.sensor import INPUT_1
+#from ev3dev2.sensor.lego import GyroSensor
 from time import sleep
 
 class Robot:
@@ -10,8 +13,10 @@ class Robot:
         self.leftHip = LargeMotor(OUTPUT_B)
         self.rightHip = LargeMotor(OUTPUT_A)
 
+        #self.gyro = GyroSensor(INPUT_1)
+
     def adjust(self):
-        self.leftHip.on_for_degrees(SpeedPercent(30), 20)
+        self.leftHip.on_for_degrees(SpeedPercent(30), 40)
 
     def liftRight(self):
         self.leftHip.off(brake=True)
@@ -76,6 +81,9 @@ class Robot:
 
 def main():
     robot = Robot()
+
+    #robot.adjust()
+    #return
 
     robot.firstStepRight()
     robot.stepLeft()

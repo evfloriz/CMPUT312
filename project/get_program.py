@@ -16,7 +16,7 @@ class Client:
     # Output: UTF-8 decoded string containing the instructions from server.
     def pollData(self):
         print("Waiting for Data")
-        data = self.s.recv(128).decode("UTF-8")
+        data = self.s.recv(1024).decode("UTF-8")
         print("Data Received")
         return data
     
@@ -33,6 +33,7 @@ def main():
     autorun = False
     
     host = "172.17.0.1"
+    #host = "172.31.123.32"
     port = 9999
 
     client = Client(host, port)
@@ -41,9 +42,25 @@ def main():
     programName = client.pollData()
     client.sendDone()
 
+    # Receive data from server in chunks
+    program = ""
+    while True:
+        
+        program_chunk = client.pollData()
+        if (program_chunk[0] == "EXIT"):
+            break
+
+        program += program_chunk
+
+        # Send done
+        client.sendDone()
+
+    client.close()
+
     # Receive program from server
     program = client.pollData()
     client.sendDone()
+    
     
     # Create program file
     file = open(programName, "w")
