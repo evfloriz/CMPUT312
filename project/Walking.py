@@ -12,50 +12,83 @@ from ev3dev2.sensor.lego import TouchSensor
 # state constants
 ON = True
 OFF = False
+class Movement:
 
-def walk(fullStepSize, speed, leftHip, rightHip, leftAnkle, rightAnkle, l2, distance):
-    # Calculate First step size and perform
-    halfStep = fullStepSize/2
-    firstAndLastStep(halfStep, speed, leftHip, leftAnkle, rightHip, rightAnkle, l2)
-    
-    #Add step length to total distance
-    totalDistance = halfStep
+    def __init__(self, distance, speed, fullStepSize):
+        self.distance = distance 
+        self.speed = speed
+        self.hip_width = 96 #mm
+        self.leftAnkle = LargeMotor(OUTPUT_D)
+        self.rightAnkle = LargeMotor(OUTPUT_C)
+        self.leftHip = LargeMotor(OUTPUT_B)
+        self.rightHip = LargeMotor(OUTPUT_A)
+        self.fullStepSize = fullStepSize
+        
 
-    #Perform walking until we reach the desired distance
-    while (distance - totalDistance) > 0:
-        step(fullStepSize, speed, leftHip, rightHip, leftAnkle, rightAnkle, l2, distance)
-        totalDistance += fullStepSize
-    
-    #Even out feet
-    firstAndLastStep(halfStep, speed, leftHip, leftAnkle, rightHip, rightAnkle, l2)
+    def walk(self):
+        # Calculate First step size and perform
+        halfStep = self.fullStepSize/2
+        self.firstAndLastStep(halfStep)
+        
+        #Add step length to total distance
+        totalDistance = halfStep
 
-    #Print total distance traveled
-    util.debug_print("walked" + distance)
-    
-    return True
+        #Perform walking until we reach the desired distance
+        while (self.distance - totalDistance) > 0:
+            self.step(self.fullStepSize)
+            totalDistance += self.fullStepSize
+        
+        #Even out feet
+        self.firstAndLastStep(halfStep)
 
-def firstAndLastStep(stepSize, speed, leftHip, leftAnkle, rightHip, rightAnkle, l2):
-    #Take half step as first step with the right foot
-    hipRotation = math.asin(stepSize/l2)
-    leftAnkle.on_for_degrees(SpeedPercent(speed), -45)
-    leftHip.on_for_degrees(SpeedPercent(speed), -math.degrees(hipRotation))
-    rightHip.on_for_degrees(SpeedPercent(speed), math.degrees(hipRotation))
-    leftAnkle.on_for_degrees(SpeedPercent(speed), 45)
-    return True
+        #Print total distance traveled
+        util.debug_print("walked" + self.distance)
+        
+        return True
 
-def step(FullStepSize, speed, leftHip, rightHip, leftAnkle, rightAnkle, l2, distance):
-    #Right foot step
-    hipRotation = math.asin(FullStepSize/l2)
-    leftAnkle.on_for_degrees(SpeedPercent(speed), -45)
-    leftHip.on_for_degrees(SpeedPercent(speed), -math.degrees(hipRotation))
-    rightHip.on_for_degrees(SpeedPercent(speed), math.degrees(hipRotation))
-    leftAnkle.on_for_degrees(SpeedPercent(speed), 45) 
+    def firstAndLastStep(self, stepSize):
+        #Take half step as first step with the right foot
+        hipRotation = math.degrees(math.asin(stepSize/self.hip_width)) * 5
+        # This multiplier in the hip rotation is to account for the 5-1 ratio of gears to motor
+        
+        self.leftHip.off(brake=True)
+        self.rightHip.off(brake=True)
+        #Lift the right side up
+        self.rightAnkle.on_for_degrees(self.speed, -220, brake=True, block=False)
+        self.leftAnkle.on_for_degrees(self.speed, 110, brake=True, block=True)
 
-    #Left foot step
-    hipRotation = math.asin(FullStepSize/l2)
-    rightAnkle.on_for_degrees(SpeedPercent(speed), -45)
-    rightHip.on_for_degrees(SpeedPercent(speed), -math.degrees(hipRotation))
-    leftHip.on_for_degrees(SpeedPercent(speed), math.degrees(hipRotation))
-    rightAnkle.on_for_degrees(SpeedPercent(speed), 45)
+        self.rightHip.on_for_degrees(self.speed, -hipRotation, brake=True, block=False)
+        
+        self.leftHip.on_for_degrees(self.speed, hipRotation, brake=True, block=True)
 
-    return True
+        self.leftAnkle.on_for_degrees(self.speed, 45)
+        return True
+
+    def step(self, fullStepSize):
+        #Left foot full step
+        hipRotation = math.degrees(math.asin(fullStepSize/self.hip_width)) * 5
+
+        self.leftHip.off(brake=True)
+        self.rightHip.off(brake=True)
+        
+        self.leftAnkle.on_for_degrees(self.speed, -220, brake=True, block=False)
+        self.rightAnkle.on_for_degrees(self.speed, 110, brake=True, block=True)
+
+        self.rightHip.on_for_degrees(self.speed, -hipRotation, brake=True, block=False)
+        self.leftHip.on_for_degrees(self.speed, hipRotation, brake=True, block=True)
+        
+        self.rightAnkle.on_for_degrees(self.speed, -110, brake=True, block=False)
+        self.leftAnkle.on_for_degrees(self.speed, 220, brake=True, block=True) 
+
+        #Right foot full step
+        self.rightAnkle.on_for_degrees(self.speed, -220, brake=True, block=False)
+        self.leftAnkle.on_for_degrees(self.speed, 110, brake=True, block=True)
+
+        self.rightHip.on_for_degrees(self.speed, hipRotation, brake=True, block=False)
+        self.leftHip.on_for_degrees(self.speed, -hipRotation, brake=True, block=True)
+
+
+        self.rightAnkle.on_for_degrees(self.speed, -110, brake=True, block=False)
+        self.leftAnkle.on_for_degrees(self.speed, 220, brake=True, block=True)
+
+        return True
