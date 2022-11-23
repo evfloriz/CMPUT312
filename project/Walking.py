@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import hello
+import util
 import os
 import sys
 import time
@@ -30,7 +30,7 @@ def walk(fullStepSize, speed, leftHip, rightHip, leftAnkle, rightAnkle, l2, dist
     firstAndLastStep(halfStep, speed, leftHip, leftAnkle, rightHip, rightAnkle, l2)
 
     #Print total distance traveled
-    hello.debug_print("walked" + distance)
+    util.debug_print("walked" + distance)
     
     return True
 
