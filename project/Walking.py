@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-
-import util
+import hello
 import os
 import sys
-import time
+from time import sleep
 import math
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, SpeedPercent, MoveTank
 from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, INPUT_4
@@ -14,7 +13,7 @@ ON = True
 OFF = False
 class Movement:
 
-    def __init__(self, distance, speed, fullStepSize):
+    def __init__(self, distance, speed):
         self.distance = distance 
         self.speed = speed
         self.hip_width = 96 #mm
@@ -22,73 +21,107 @@ class Movement:
         self.rightAnkle = LargeMotor(OUTPUT_C)
         self.leftHip = LargeMotor(OUTPUT_B)
         self.rightHip = LargeMotor(OUTPUT_A)
-        self.fullStepSize = fullStepSize
         
 
-    def walk(self):
+    def walk(self, fullStepSize):
         # Calculate First step size and perform
-        halfStep = self.fullStepSize/2
-        self.firstAndLastStep(halfStep)
-        
+        halfStep = fullStepSize/2
+        # self.firstAndLastStep(halfStep)
+        self.firstStepRight()
         #Add step length to total distance
         totalDistance = halfStep
 
         #Perform walking until we reach the desired distance
         while (self.distance - totalDistance) > 0:
-            self.step(self.fullStepSize)
-            totalDistance += self.fullStepSize
+            self.step(fullStepSize)
+            totalDistance += fullStepSize*2
         
-        #Even out feet
-        self.firstAndLastStep(halfStep)
-
+        # even out feet at end
+        self.shuffleLeft()
+        
+        final_distance = str(self.distance)
         #Print total distance traveled
-        util.debug_print("walked" + self.distance)
+        hello.debug_print("walked aproximately " + final_distance + "mm")
         
         return True
 
-    def firstAndLastStep(self, stepSize):
-        #Take half step as first step with the right foot
-        hipRotation = math.degrees(math.asin(stepSize/self.hip_width)) * 5
-        # This multiplier in the hip rotation is to account for the 5-1 ratio of gears to motor
-        
-        self.leftHip.off(brake=True)
-        self.rightHip.off(brake=True)
-        #Lift the right side up
-        self.rightAnkle.on_for_degrees(self.speed, -220, brake=True, block=False)
-        self.leftAnkle.on_for_degrees(self.speed, 110, brake=True, block=True)
-
-        self.rightHip.on_for_degrees(self.speed, -hipRotation, brake=True, block=False)
-        
-        self.leftHip.on_for_degrees(self.speed, hipRotation, brake=True, block=True)
-
-        self.leftAnkle.on_for_degrees(self.speed, 45)
+    def firstStepRight(self):
+        #first step
+        self.liftRight()
+        self.shuffleRight()
+        self.lowerRight()
         return True
 
-    def step(self, fullStepSize):
+
+    def step(self, FullStepSize):
         #Left foot full step
-        hipRotation = math.degrees(math.asin(fullStepSize/self.hip_width)) * 5
+        hipRotation = math.degrees(math.asin(FullStepSize/self.hip_width))
 
+        self.stepLeft()
+        self.stepRight()
+
+        return True
+
+
+    def liftRight(self):
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
-        
-        self.leftAnkle.on_for_degrees(self.speed, -220, brake=True, block=False)
-        self.rightAnkle.on_for_degrees(self.speed, 110, brake=True, block=True)
+        self.rightAnkle.on_for_degrees(SpeedPercent(20), -220, brake=True, block=False)
+        self.leftAnkle.on_for_degrees(SpeedPercent(10), 110, brake=True, block=True)
+        sleep(1)
+        return True
 
-        self.rightHip.on_for_degrees(self.speed, -hipRotation, brake=True, block=False)
-        self.leftHip.on_for_degrees(self.speed, hipRotation, brake=True, block=True)
-        
-        self.rightAnkle.on_for_degrees(self.speed, -110, brake=True, block=False)
-        self.leftAnkle.on_for_degrees(self.speed, 220, brake=True, block=True) 
+    def lowerRight(self):
+        self.leftHip.off(brake=True)
+        self.rightHip.off(brake=True)
+        self.leftAnkle.on_for_degrees(SpeedPercent(10), -110, brake=True, block=False)
+        self.rightAnkle.on_for_degrees(SpeedPercent(20), 220, brake=True, block=True)
+        sleep(1)
+        return True
 
-        #Right foot full step
-        self.rightAnkle.on_for_degrees(self.speed, -220, brake=True, block=False)
-        self.leftAnkle.on_for_degrees(self.speed, 110, brake=True, block=True)
+    def liftLeft(self):
+        self.leftHip.off(brake=True)
+        self.rightHip.off(brake=True)
+        self.leftAnkle.on_for_degrees(SpeedPercent(20), -220, brake=True, block=False)
+        self.rightAnkle.on_for_degrees(SpeedPercent(10), 110, brake=True, block=True)
+        sleep(1)
+        return True
 
-        self.rightHip.on_for_degrees(self.speed, hipRotation, brake=True, block=False)
-        self.leftHip.on_for_degrees(self.speed, -hipRotation, brake=True, block=True)
+    def lowerLeft(self):
+        self.leftHip.off(brake=True)
+        self.rightHip.off(brake=True)
+        self.rightAnkle.on_for_degrees(SpeedPercent(10), -110, brake=True, block=False)
+        self.leftAnkle.on_for_degrees(SpeedPercent(20), 220, brake=True, block=True)
+        sleep(1)
+        return True
+
+    def shuffleRight(self):
+        self.leftAnkle.off(brake=True)
+        self.rightAnkle.off(brake=True)
+        self.rightHip.on_for_degrees(SpeedPercent(10), -70, brake=True, block=False)
+        self.leftHip.on_for_degrees(SpeedPercent(10), 70, brake=True, block=True)
+        sleep(1)
+        return True
+
+    def shuffleLeft(self):
+        self.leftAnkle.off(brake=True)
+        self.rightAnkle.off(brake=True)
+        self.rightHip.on_for_degrees(SpeedPercent(10), 70, brake=True, block=False)
+        self.leftHip.on_for_degrees(SpeedPercent(10), -70, brake=True, block=True)
+        sleep(1)
+        return True
 
 
-        self.rightAnkle.on_for_degrees(self.speed, -110, brake=True, block=False)
-        self.leftAnkle.on_for_degrees(self.speed, 220, brake=True, block=True)
+    def stepRight(self):
+        self.liftRight()
+        self.shuffleRight()
+        self.shuffleRight()
+        self.lowerRight()
+        return True
 
+    def stepLeft(self):
+        self.liftLeft()
+        self.shuffleLeft()
+        self.shuffleLeft()
+        self.lowerLeft()
         return True
