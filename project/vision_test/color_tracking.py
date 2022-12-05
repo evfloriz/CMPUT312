@@ -31,7 +31,6 @@ class Tracker:
 
     def __init__(self, pointColor, goalColor):
         self.point = [(0,0,0)]
-        self.goal = [(0,0,0)]
         thread = threading.Thread(target=self.TrackerThread, args=(pointColor, goalColor), daemon=True)
         thread.start()
 
@@ -46,16 +45,16 @@ class Tracker:
         while rval:
             # Handle current frame
             rval, frame = vc.read()
+
+            # Print size of image
+            #array = np.array(frame)            
+            #print(array.shape)
+
             circlesPoint = self.GetLocation(frame, pointColor)
-            circlesGoal = self.GetLocation(frame, goalColor)
             self.DrawCircles(frame, circlesPoint, (255, 0, 0))
-            self.DrawCircles(frame, circlesGoal, (0, 0, 255))
 
             if circlesPoint is not None:
                 self.point = circlesPoint[0]
-            
-            if circlesGoal is not None:
-                self.goal = circlesGoal[0]
 
             # Shows the original image with the detected circles drawn.
             cv2.imshow("Result", frame)

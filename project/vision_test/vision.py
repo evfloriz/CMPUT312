@@ -21,6 +21,7 @@ class Controller:
             self.queue = Queue()
 
     def __del__(self):
+        self.server.sendTermination()
         self.server.close()
 
     def sendCoords(self, coords):
@@ -33,12 +34,12 @@ class Controller:
     def track(self):
         while (True):
             print(self.tracker.point)
-            print(self.tracker.goal)
 
             if (connect):
                 self.sendCoords(self.tracker.point[0])
             
-            sleep(1)
+            # What's the maximum rate? Is it possible to interpolate?
+            sleep(0.1)
 
 
 def main():
