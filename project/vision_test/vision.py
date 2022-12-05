@@ -6,19 +6,19 @@ from color_tracking import Tracker
 from server import Server
 from queue import Queue
 
-connect = True
+connect = False
 
 class Controller:
     
     def __init__(self):
         self.tracker = Tracker('b', 'r')
+        print(self.tracker)
 
         if (connect):
             host = "172.17.0.1"
             port = 9999
             self.server = Server(host, port)
-
-        self.queue = Queue()
+            self.queue = Queue()
 
     def sendSpeed(self, left_speed, right_speed):
         print(left_speed)
@@ -32,7 +32,10 @@ class Controller:
         while (True):
             print(self.tracker.point)
             print(self.tracker.goal)
-            self.sendSpeed(10, 10)
+
+            if (connect):
+                self.sendSpeed(10, 10)
+            
             sleep(1)
 
 

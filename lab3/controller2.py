@@ -50,7 +50,7 @@ from queue import Queue
 from math import sin, asin, acos, atan2, degrees, sqrt
 import numpy as np
 
-connect = True
+connect = False
 
 class Controller:
     
