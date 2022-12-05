@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-from ev3dev2.motor import LargeMotor, OUTPUT_D, OUTPUT_C, SpeedPercent
-import time
+from time import sleep
 from client import Client
+from ev3dev2.motor import LargeMotor, OUTPUT_D, OUTPUT_C, SpeedPercent
+from ev3dev2.sensor import INPUT_1, INPUT_2
+from ev3dev2.sensor.lego import ColorSensor
 
 class Robot:
     def __init__(self):
@@ -10,11 +12,13 @@ class Robot:
         port = 9999
         self.client = Client(host, port)
 
-        # Motor data
         self.motor1 = LargeMotor(OUTPUT_D)
         self.motor2 = LargeMotor(OUTPUT_C)
         self.dir = -1
 
+        self.cs1 = ColorSensor(INPUT_1)
+        self.cs2 = ColorSensor(INPUT_2)
+        
         self.seconds = 0.5
 
         self.file = open("robot.out", "w")
@@ -23,16 +27,22 @@ class Robot:
         self.client.close()
         self.file.close()
 
-    def getSpeedFromServer(self):
+    def getCoordsFromServer(self):
         while True:
             # Receive data from server
             data = self.client.pollData().split(',')
-            print(data)
             if (data[0] == "EXIT"):
                 break
             
+            self.file.write(str(data) + '\n');
+            self.file.write(str(self.cs1.rgb) + '\n')
+            self.file.write(str(self.cs2.rgb) + '\n')
+
             # Move to angle sent by server
-            self.move(float(data[0]), float(data[1]))
+            #self.move(float(data[0]), float(data[1]))
+
+            print(str(self.cs1.rgb))
+            print(str(self.cs2.rgb))
 
             # Send done
             self.client.sendDone()
@@ -51,6 +61,6 @@ class Robot:
 
 def main():
     robot = Robot()
-    robot.getSpeedFromServer()
+    robot.getCoordsFromServer()
 
 main()

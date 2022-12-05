@@ -16,13 +16,12 @@ class Server:
         self.cs, addr = serversocket.accept()
         print ("Connected to: " + str(addr))
 
-    # Sends set of angles to the brick via TCP.
-    # Input: base_angle [Float]: The angle by which we want the base to move
-    #        joint_angle [Float]: The angle by which we want to joint to move
+    # Sends data to the brick via TCP.
+    # Input: coords: coordinates of the tracked point
     #        queue [Thread-safe Queue]: Mutable data structure to store (and return) the messages received from the client
-    def sendSpeed(self, left_speed, right_speed, queue):
-        # Format in which the client expects the data: "angle1,angle2"
-        data = str(left_speed) + "," + str(right_speed)
+    def sendCoords(self, coords, queue):
+        # Format in which the client expects the data: x, y, r
+        data = str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2])
         print("Sending Data: (" + data + ") to robot.")
         self.cs.send(data.encode("UTF-8"))
         # Waiting for the client (ev3 brick) to let the server know that it is done moving

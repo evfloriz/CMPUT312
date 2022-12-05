@@ -18,6 +18,12 @@
             "type": "ev3devBrowser",
             "request": "launch",
             "program": "/home/robot/${workspaceFolderBasename}/${relativeFile}"
+        },
+        {
+            "name": "robot.py",
+            "type": "ev3devBrowser",
+            "request": "launch",
+            "program": "/home/robot/${workspaceFolderBasename}/project/vision_test/robot.py"
         }
     ]
 }
