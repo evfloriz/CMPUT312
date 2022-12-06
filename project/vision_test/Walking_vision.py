@@ -13,8 +13,7 @@ ON = True
 OFF = False
 class Movement:
 
-    def __init__(self, speed):
-        self.speed = speed
+    def __init__(self):
         self.hip_width = 96 #mm
         self.leftAnkle = LargeMotor(OUTPUT_D)
         self.rightAnkle = LargeMotor(OUTPUT_C)
@@ -198,10 +197,13 @@ class Movement:
 
 def main():
     
-    robot = Movement(50)
-    robot.walk(500, 50)
-    robot.turnRight(90)
-    robot.walk(500, 50)
+    robot = Movement()
+    #robot.walk(500, 50)
+    #robot.turnRight(90)
+    #robot.walk(500, 50)
+
+
+    # decide how far to move while stationary
     
     
 main()

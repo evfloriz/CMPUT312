@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 
+'''
+This program combines sensor data from analog_robot.py with
+walking code from Walking.py
+'''
+
 from time import sleep
 from client import Client
 from ev3dev2.motor import LargeMotor, OUTPUT_D, OUTPUT_C, SpeedPercent
 from ev3dev2.sensor import INPUT_1, INPUT_2
 from ev3dev2.sensor.lego import ColorSensor
+
+from movement import Movement
 
 class Robot:
     def __init__(self):
@@ -12,16 +19,18 @@ class Robot:
         port = 9999
         self.client = Client(host, port)
 
-        self.motor1 = LargeMotor(OUTPUT_D)
-        self.motor2 = LargeMotor(OUTPUT_C)
-        self.dir = -1
+        #self.motor1 = LargeMotor(OUTPUT_D)
+        #self.motor2 = LargeMotor(OUTPUT_C)
+        #self.dir = -1
 
-        self.cs1 = ColorSensor(INPUT_1)
-        self.cs2 = ColorSensor(INPUT_2)
+        #self.cs1 = ColorSensor(INPUT_1)
+        #self.cs2 = ColorSensor(INPUT_2)
 
         self.tracked_position = [0, 0]
         
         self.speed = 10
+
+        self.movement = Movement()
 
         self.file = open("robot.out", "w")
 
@@ -58,16 +67,33 @@ class Robot:
     
     
     def followPoint(self):
-        # move in the direction to keep the point in the center of image
+        # Calculate the desired angle of the camera foot to point it towards the tracked point
+
+        # Need to calculate this properly, camera has 55deg dfov, ~45def hfov
+        hfov = 45
+
         # image is 480 by 640
         centerX = 320
         centerY = 240
 
         # negative means turn left, positive means turn right
-        adjustX = self.tracked_position[0] - centerX
-        self.file.write(str(adjustX) + '\n')
+        proportionX = (self.tracked_position[0] - centerX) / centerX
+
+        angle = hfov / 2 * proportionX
+
+        # Compute estimated angle to align robot foot to center
+
+        self.file.write(str(angle) + '\n')
+
+        
+        ## MOVE TOWARD ANGLE
+        self.movement.liftLeft()
+        self.movement.rotateLeft(angle)
+        self.movement.lowerLeft()
+
 
         # Adjust a max of 5 percent speed on either edge of the screen
+        '''
         percent_adjust = 5
         speed_adjust = (adjustX / centerX) * percent_adjust
         
@@ -75,6 +101,7 @@ class Robot:
         right_speed = self.speed + speed_adjust
 
         self.move(left_speed, right_speed)
+        '''
 
 
     def move(self, left_speed, right_speed):
@@ -148,9 +175,9 @@ def main():
         # move towards point
         robot.followPoint()
 
-        shouldContinue = robot.checkColorSensors()
-        if (not shouldContinue):
-            break
+        #shouldContinue = robot.checkColorSensors()
+        #if (not shouldContinue):
+            #break
 
         
 

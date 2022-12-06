@@ -6,7 +6,7 @@ from color_tracking import Tracker
 from server import Server
 from queue import Queue
 
-connect = False
+connect = True
 
 class Controller:
     
