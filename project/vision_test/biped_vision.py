@@ -8,7 +8,7 @@ walking code from Walking.py
 from time import sleep
 from client import Client
 from ev3dev2.motor import LargeMotor, OUTPUT_D, OUTPUT_C, SpeedPercent
-from ev3dev2.sensor import INPUT_1, INPUT_2
+from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import ColorSensor
 
 #from GyroWalk import GyroMovement
@@ -24,8 +24,8 @@ class Robot:
         #self.motor2 = LargeMotor(OUTPUT_C)
         #self.dir = -1
 
-        #self.cs1 = ColorSensor(INPUT_1)
-        #self.cs2 = ColorSensor(INPUT_2)
+        self.leftCS = ColorSensor(INPUT_3)
+        self.rightCS = ColorSensor(INPUT_4)
 
         self.tracked_position = [0, 0]
         
@@ -68,11 +68,6 @@ class Robot:
         self.client.sendDone()
 
         return True
-
-    def initMovement(self):
-        # lift sensor foot
-        self.movement.liftLeft()
-
     
     
     def updateFollowAngle(self):
@@ -95,25 +90,37 @@ class Robot:
         self.file.write(str(self.angle) + '\n')
 
 
-    def moveOneCycle(self):
+    def moveOneCycle(self, firstCycle):
         # algorithm
-        # lift sensor foot
+        
         # while (light sensors dont detect)
+            # update angles
+
+            # lift sensor foot
+            # if not first cycle:
+            #   take half step forward with sensor foot
             # rotate sensor hip to point toward ball
             # lower sensor foot
             # lift nonsensor foot
             # rotate sensor hip to be in line (leaving non sensor foot)
             # take half step forward with nonsensor foot
             # lower nonsensor foot
-            # lift sensor foot
-            # take half step forward with sensor foot
+            
+
+
+        # lift sensor foot
+        self.movement.liftLeft()
+
+        # take half step forward with sensor foot if not the first cycle
+        if (not firstCycle):
+            self.movement.shuffleLeft()
 
         # rotate sensor hip to point toward ball
         self.movement.rotateLeft(self.angle)
 
         # lower sensor foot
         self.movement.lowerLeft()
-
+        
         # lift nonsensor foot
         self.movement.liftRight()
         
@@ -126,31 +133,6 @@ class Robot:
         # lower nonsensor foot
         self.movement.lowerRight()
 
-        # lift sensor foot
-        self.movement.liftLeft()
-
-        # take half step forward with sensor foot
-        self.movement.shuffleLeft()
-
-
-    def move(self, left_speed, right_speed):
-        self.file.write("Moving at L: " + str(left_speed) + ", R:" + str(right_speed) + "\n")
-        left_motor_speed = left_speed * self.dir
-        right_motor_speed = right_speed * self.dir
-        # run for 2 seconds
-        seconds = 2
-        self.motor1.on_for_seconds(SpeedPercent(left_motor_speed), seconds, brake=True, block=False)
-        self.motor2.on_for_seconds(SpeedPercent(right_motor_speed), seconds, brake=True, block=False)
-
-
-    def fineMove(self, left_speed, right_speed):
-        self.file.write("Moving at L: " + str(left_speed) + ", R:" + str(right_speed) + "\n")
-        left_motor_speed = left_speed * self.dir
-        right_motor_speed = right_speed * self.dir
-        # run for 0.1 seconds
-        seconds = 0.1
-        self.motor1.on_for_seconds(SpeedPercent(left_motor_speed), seconds, brake=True, block=False)
-        self.motor2.on_for_seconds(SpeedPercent(right_motor_speed), seconds, brake=True, block=False)
 
 
     def checkColorSensors(self):
@@ -160,33 +142,38 @@ class Robot:
         # even sensor reading threshold
         threshold = 10
         
-        blue1 = self.cs1.rgb[2]
-        blue2 = self.cs2.rgb[2]
+        leftBlue = self.leftCS.rgb[2]
+        rightBlue = self.rightCS.rgb[2]
 
-        self.file.write(str(blue1) + " " + str(blue2) + '\n')
-        if (blue1 > 10 or blue2 > 10):
-            self.stop()
+        self.file.write(str(leftBlue) + " " + str(rightBlue) + '\n')
+        print(str(leftBlue) + " " + str(rightBlue))
+        if (leftBlue > threshold or rightBlue > threshold):
+            return True
 
             # if the two sensors are close, stop
-            if (abs(blue1 - blue2) < threshold):
-                return False
+            if (abs(leftBlue - rightBlue) < threshold):
+                return True
+            
             else:
-
                 # otherwise, move in the direction of the one with
                 # greater value to bring them in balance
-                if (blue1 > blue2):
-                    self.fineMove(10, 0)
+                if (leftBlue < rightBlue):
+                    self.angle = -10
                 else:
-                    self.fineMove(0, 10)
+                    self.angle = 10
 
-        return True
+        return False
 
 
             
 
-    def stop(self):
-        self.motor1.stop()
-        self.motor2.stop()
+    def kick(self):
+        self.movement.liftLeft()
+        self.movement.shuffleLeft()                 # shuffle foot forward
+        self.movement.doubleShuffleRight()          # wind up...
+        self.movement.quadShuffleLeft()             # kick!
+        self.movement.doubleShuffleRight()          # return foot
+        self.movement.lowerLeft()
 
         
 
@@ -194,31 +181,28 @@ class Robot:
 def main():
     robot = Robot()
 
-    robot.initMovement()
+    firstCycle = True
 
     # main loop
     while True:
+
         # get coords from server
         shouldContinue = robot.getCoordsFromServer()
         if (not shouldContinue):
             break
-
-        # move towards point
+        
+        # update angle to move towards point
         robot.updateFollowAngle()
 
-        robot.moveOneCycle()
-
-
-
-        #shouldContinue = robot.checkColorSensors()
-        #if (not shouldContinue):
-            #break
-
+        # override follow angle with color sensors
+        shouldKick = robot.checkColorSensors()
+        if (shouldKick):
+            robot.kick()
+            break
         
-
-        print("continuing")
-
-    print("exiting")
+        # move one cycle towards the ball
+        robot.moveOneCycle(firstCycle)
+        firstCycle = False
 
     
 
