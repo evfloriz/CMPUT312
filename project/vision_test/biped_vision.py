@@ -11,6 +11,7 @@ from ev3dev2.motor import LargeMotor, OUTPUT_D, OUTPUT_C, SpeedPercent
 from ev3dev2.sensor import INPUT_1, INPUT_2
 from ev3dev2.sensor.lego import ColorSensor
 
+#from GyroWalk import GyroMovement
 from movement import Movement
 
 class Robot:
@@ -30,6 +31,9 @@ class Robot:
         
         self.speed = 10
 
+        self.angle = 0
+
+        #self.movement = GyroMovement()
         self.movement = Movement()
 
         self.file = open("robot.out", "w")
@@ -64,9 +68,14 @@ class Robot:
         self.client.sendDone()
 
         return True
+
+    def initMovement(self):
+        # lift sensor foot
+        self.movement.liftLeft()
+
     
     
-    def followPoint(self):
+    def updateFollowAngle(self):
         # Calculate the desired angle of the camera foot to point it towards the tracked point
 
         # Need to calculate this properly, camera has 55deg dfov, ~45def hfov
@@ -79,29 +88,49 @@ class Robot:
         # negative means turn left, positive means turn right
         proportionX = (self.tracked_position[0] - centerX) / centerX
 
-        angle = hfov / 2 * proportionX
+        self.angle = hfov / 2 * proportionX
 
         # Compute estimated angle to align robot foot to center
 
-        self.file.write(str(angle) + '\n')
+        self.file.write(str(self.angle) + '\n')
 
-        
-        ## MOVE TOWARD ANGLE
-        self.movement.liftLeft()
-        self.movement.rotateLeft(angle)
+
+    def moveOneCycle(self):
+        # algorithm
+        # lift sensor foot
+        # while (light sensors dont detect)
+            # rotate sensor hip to point toward ball
+            # lower sensor foot
+            # lift nonsensor foot
+            # rotate sensor hip to be in line (leaving non sensor foot)
+            # take half step forward with nonsensor foot
+            # lower nonsensor foot
+            # lift sensor foot
+            # take half step forward with sensor foot
+
+        # rotate sensor hip to point toward ball
+        self.movement.rotateLeft(self.angle)
+
+        # lower sensor foot
         self.movement.lowerLeft()
 
-
-        # Adjust a max of 5 percent speed on either edge of the screen
-        '''
-        percent_adjust = 5
-        speed_adjust = (adjustX / centerX) * percent_adjust
+        # lift nonsensor foot
+        self.movement.liftRight()
         
-        left_speed = self.speed - speed_adjust
-        right_speed = self.speed + speed_adjust
+        # rotate sensor hip to be in line (leaving non sensor foot)
+        self.movement.rotateLeft(-self.angle)
 
-        self.move(left_speed, right_speed)
-        '''
+        # take half step forward with nonsensor foot
+        self.movement.shuffleRight()
+
+        # lower nonsensor foot
+        self.movement.lowerRight()
+
+        # lift sensor foot
+        self.movement.liftLeft()
+
+        # take half step forward with sensor foot
+        self.movement.shuffleLeft()
 
 
     def move(self, left_speed, right_speed):
@@ -165,6 +194,8 @@ class Robot:
 def main():
     robot = Robot()
 
+    robot.initMovement()
+
     # main loop
     while True:
         # get coords from server
@@ -173,7 +204,11 @@ def main():
             break
 
         # move towards point
-        robot.followPoint()
+        robot.updateFollowAngle()
+
+        robot.moveOneCycle()
+
+
 
         #shouldContinue = robot.checkColorSensors()
         #if (not shouldContinue):

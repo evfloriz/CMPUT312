@@ -33,12 +33,14 @@ class Movement:
         self.rightHip.off(brake=True)
         self.leftAnkle.on_for_degrees(SpeedPercent(20), -220, brake=True, block=False)
         self.rightAnkle.on_for_degrees(SpeedPercent(10), 110, brake=True, block=True)
+        #self.leftAnkle.on_for_degrees(SpeedPercent(20), 110, brake=True, block=True)    # straighten foot
         sleep(1)
         return True
 
     def lowerLeft(self):
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
+        #self.leftAnkle.on_for_degrees(SpeedPercent(20), -110, brake=True, block=True)   # angle foot
         self.rightAnkle.on_for_degrees(SpeedPercent(10), -110, brake=True, block=False)
         self.leftAnkle.on_for_degrees(SpeedPercent(20), 220, brake=True, block=True)
         sleep(1)
@@ -86,6 +88,18 @@ class Movement:
     def stepLeft(self):
         self.liftLeft()
         self.shuffleLeft()
+        self.shuffleLeft()
+        self.lowerLeft()
+        return True
+
+    def halfStepRight(self):
+        self.liftRight()
+        self.shuffleRight()
+        self.lowerRight()
+        return True
+
+    def halfStepLeft(self):
+        self.liftLeft()
         self.shuffleLeft()
         self.lowerLeft()
         return True
