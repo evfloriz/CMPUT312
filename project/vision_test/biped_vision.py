@@ -106,8 +106,6 @@ class Robot:
             # take half step forward with nonsensor foot
             # lower nonsensor foot
             
-
-
         # lift sensor foot
         self.movement.liftLeft()
 
@@ -134,11 +132,7 @@ class Robot:
         self.movement.lowerRight()
 
 
-
     def checkColorSensors(self):
-        #self.file.write(str(self.cs1.rgb) + '\n')
-        #self.file.write(str(self.cs2.rgb) + '\n')
-        
         # even sensor reading threshold
         threshold = 10
         
@@ -146,38 +140,21 @@ class Robot:
         rightBlue = self.rightCS.rgb[2]
 
         self.file.write(str(leftBlue) + " " + str(rightBlue) + '\n')
-        print(str(leftBlue) + " " + str(rightBlue))
+
         if (leftBlue > threshold or rightBlue > threshold):
             return True
 
-            # if the two sensors are close, stop
-            if (abs(leftBlue - rightBlue) < threshold):
-                return True
-            
-            else:
-                # otherwise, move in the direction of the one with
-                # greater value to bring them in balance
-                if (leftBlue < rightBlue):
-                    self.angle = -10
-                else:
-                    self.angle = 10
-
         return False
-
-
-            
+    
 
     def kick(self):
         self.movement.liftLeft()
-        self.movement.shuffleLeft()                 # shuffle foot forward
-        self.movement.doubleShuffleRight()          # wind up...
+        self.movement.shuffleRight()                # wind up...
         self.movement.quadShuffleLeft()             # kick!
         self.movement.doubleShuffleRight()          # return foot
         self.movement.lowerLeft()
 
         
-
-
 def main():
     robot = Robot()
 

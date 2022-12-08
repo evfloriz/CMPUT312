@@ -2,6 +2,7 @@
 This class holds the movement primitives for the biped
 '''
 
+import hello
 from time import sleep
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, SpeedPercent
 
@@ -13,86 +14,122 @@ class Movement:
         self.rightHip = LargeMotor(OUTPUT_A)
 
         self.last_dir = {
-            self.leftAnkle: 1,
-            self.rightAnkle: -1,
-            self.leftHip: 1,
-            self.rightHip: 1
+            self.leftAnkle: 0,
+            self.rightAnkle: 0,
+            self.leftHip: 0,
+            self.rightHip: 0
         }
 
-    def compensate(self, motor, dir):
+    def compensate(self, motor):
         # small movement to balance out changes in direction
-        angle = 20 * 5 * dir
-        motor.on_for_degrees(SpeedPercent(10), angle)
+        angle = 10 * 5 * self.last_dir[motor] * -1
+        motor.on_for_degrees(SpeedPercent(20), angle)
+
+    def checkLastDir(self, motor, dirToMove):
+        if (self.last_dir[motor] != dirToMove):
+            self.compensate(motor)
+
+        self.last_dir[motor] = dirToMove
     
     def liftRight(self):
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
+
         self.rightAnkle.on_for_degrees(SpeedPercent(20), -220, brake=True, block=False)
-        self.leftAnkle.on_for_degrees(SpeedPercent(10), 110, brake=True, block=True)
+        self.leftAnkle.on_for_degrees(SpeedPercent(10), 120, brake=True, block=True)
+
         sleep(1)
         return True
 
     def lowerRight(self):
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
-        self.leftAnkle.on_for_degrees(SpeedPercent(10), -110, brake=True, block=False)
+
+        self.leftAnkle.on_for_degrees(SpeedPercent(10), -120, brake=True, block=False)
         self.rightAnkle.on_for_degrees(SpeedPercent(20), 220, brake=True, block=True)
+
         sleep(1)
         return True
 
     def liftLeft(self):
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
+
         self.leftAnkle.on_for_degrees(SpeedPercent(20), -220, brake=True, block=False)
-        self.rightAnkle.on_for_degrees(SpeedPercent(10), 110, brake=True, block=True)
-        #self.leftAnkle.on_for_degrees(SpeedPercent(20), 110, brake=True, block=True)    # straighten foot
+        self.rightAnkle.on_for_degrees(SpeedPercent(10), 120, brake=True, block=True)
+        
         sleep(1)
         return True
 
     def lowerLeft(self):
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
-        #self.leftAnkle.on_for_degrees(SpeedPercent(20), -110, brake=True, block=True)   # angle foot
-        self.rightAnkle.on_for_degrees(SpeedPercent(10), -110, brake=True, block=False)
+
+        self.rightAnkle.on_for_degrees(SpeedPercent(10), -120, brake=True, block=False)
         self.leftAnkle.on_for_degrees(SpeedPercent(20), 220, brake=True, block=True)
+
         sleep(1)
         return True
 
     def shuffleRight(self):
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
-        self.rightHip.on_for_degrees(SpeedPercent(15), -20*5, brake=True, block=False)
-        self.leftHip.on_for_degrees(SpeedPercent(15), 20*5, brake=True, block=True)
+
+        self.checkLastDir(self.rightHip, -1)
+        self.checkLastDir(self.leftHip, 1)
+        
+        self.rightHip.on_for_degrees(SpeedPercent(20), -20*5, brake=True, block=False)
+        self.leftHip.on_for_degrees(SpeedPercent(20), 20*5, brake=True, block=True)
+
         sleep(1)
         return True
 
     def shuffleLeft(self):
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
-        self.rightHip.on_for_degrees(SpeedPercent(15), 20*5, brake=True, block=False)
-        self.leftHip.on_for_degrees(SpeedPercent(15), -20*5, brake=True, block=True)
+
+        self.checkLastDir(self.rightHip, 1)
+        self.checkLastDir(self.leftHip, -1)
+
+        self.rightHip.on_for_degrees(SpeedPercent(20), 20*5, brake=True, block=False)
+        self.leftHip.on_for_degrees(SpeedPercent(20), -20*5, brake=True, block=True)
+
         sleep(1)
         return True
 
     def doubleShuffleRight(self):
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
+
+        self.checkLastDir(self.rightHip, -1)
+        self.checkLastDir(self.leftHip, 1)
+        
         self.rightHip.on_for_degrees(SpeedPercent(30), -40*5, brake=True, block=False)
         self.leftHip.on_for_degrees(SpeedPercent(30), 40*5, brake=True, block=True)
+
         sleep(1)
         return True
 
     def doubleShuffleLeft(self):
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
+
+        self.checkLastDir(self.rightHip, 1)
+        self.checkLastDir(self.leftHip, -1)
+
         self.rightHip.on_for_degrees(SpeedPercent(30), 40*5, brake=True, block=False)
         self.leftHip.on_for_degrees(SpeedPercent(30), -40*5, brake=True, block=True)
+
         sleep(1)
         return True
 
     def quadShuffleLeft(self):
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
+
+        self.checkLastDir(self.rightHip, 1)
+        self.checkLastDir(self.leftHip, -1)
+
         self.rightHip.on_for_degrees(SpeedPercent(30), 80*5, brake=True, block=False)
         self.leftHip.on_for_degrees(SpeedPercent(30), -80*5, brake=True, block=True)
 
@@ -101,7 +138,12 @@ class Movement:
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
         self.rightHip.off(brake=True)
-        self.leftHip.on_for_degrees(SpeedPercent(15), angle*5, brake=True, block=True)
+
+        dir = angle / abs(angle)
+        self.checkLastDir(self.leftHip, dir)
+
+        self.leftHip.on_for_degrees(SpeedPercent(20), angle*5, brake=True, block=True)
+
         sleep(1)
         return True
 
@@ -109,7 +151,12 @@ class Movement:
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
         self.leftHip.off(brake=True)
-        self.rightHip.on_for_degrees(SpeedPercent(15), angle*5, brake=True, block=True)
+
+        dir = angle / abs(angle)
+        self.checkLastDir(self.rightHip, dir)
+
+        self.rightHip.on_for_degrees(SpeedPercent(20), angle*5, brake=True, block=True)
+
         sleep(1)
         return True
 
