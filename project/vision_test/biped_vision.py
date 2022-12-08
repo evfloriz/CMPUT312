@@ -61,18 +61,14 @@ class Robot:
         #self.file.write(str(self.cs1.rgb) + '\n')
         #self.file.write(str(self.cs2.rgb) + '\n')
 
-        #print(str(self.cs1.rgb))
-        #print(str(self.cs2.rgb))
-
-        # Send done
-        self.client.sendDone()
+        print(data)
 
         return True
     
     
     def updateFollowAngle(self):
         # Calculate the desired angle of the camera foot to point it towards the tracked point
-
+        
         # Need to calculate this properly, camera has 55deg dfov, ~45def hfov
         hfov = 45
 
@@ -84,6 +80,8 @@ class Robot:
         proportionX = (self.tracked_position[0] - centerX) / centerX
 
         self.angle = hfov / 2 * proportionX
+
+        print(self.angle)
 
         # Compute estimated angle to align robot foot to center
 
@@ -130,6 +128,9 @@ class Robot:
 
         # lower nonsensor foot
         self.movement.lowerRight()
+
+        # send done to the server
+        self.client.sendDone()
 
 
     def checkColorSensors(self):
@@ -180,6 +181,8 @@ def main():
         # move one cycle towards the ball
         robot.moveOneCycle(firstCycle)
         firstCycle = False
+
+
 
     
 

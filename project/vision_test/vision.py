@@ -37,9 +37,6 @@ class Controller:
 
             if (connect):
                 self.sendCoords(self.tracker.point[0])
-            
-            # What's the maximum rate? Is it possible to interpolate?
-            sleep(0.1)
 
 
 def main():

@@ -26,6 +26,7 @@ class Movement:
         motor.on_for_degrees(SpeedPercent(20), angle)
 
     def checkLastDir(self, motor, dirToMove):
+        dirToMove = int(dirToMove)
         if (self.last_dir[motor] != dirToMove):
             self.compensate(motor)
 
@@ -78,8 +79,8 @@ class Movement:
         self.checkLastDir(self.rightHip, -1)
         self.checkLastDir(self.leftHip, 1)
         
-        self.rightHip.on_for_degrees(SpeedPercent(20), -20*5, brake=True, block=False)
-        self.leftHip.on_for_degrees(SpeedPercent(20), 20*5, brake=True, block=True)
+        self.rightHip.on_for_degrees(SpeedPercent(15), -20*5, brake=True, block=False)
+        self.leftHip.on_for_degrees(SpeedPercent(15), 20*5, brake=True, block=True)
 
         sleep(1)
         return True
@@ -91,8 +92,8 @@ class Movement:
         self.checkLastDir(self.rightHip, 1)
         self.checkLastDir(self.leftHip, -1)
 
-        self.rightHip.on_for_degrees(SpeedPercent(20), 20*5, brake=True, block=False)
-        self.leftHip.on_for_degrees(SpeedPercent(20), -20*5, brake=True, block=True)
+        self.rightHip.on_for_degrees(SpeedPercent(15), 20*5, brake=True, block=False)
+        self.leftHip.on_for_degrees(SpeedPercent(15), -20*5, brake=True, block=True)
 
         sleep(1)
         return True
@@ -132,6 +133,9 @@ class Movement:
 
         self.rightHip.on_for_degrees(SpeedPercent(30), 80*5, brake=True, block=False)
         self.leftHip.on_for_degrees(SpeedPercent(30), -80*5, brake=True, block=True)
+        
+        sleep(1)
+        return True
 
 
     def rotateLeft(self, angle):
@@ -140,9 +144,10 @@ class Movement:
         self.rightHip.off(brake=True)
 
         dir = angle / abs(angle)
+        hello.debug_print(dir)
         self.checkLastDir(self.leftHip, dir)
 
-        self.leftHip.on_for_degrees(SpeedPercent(20), angle*5, brake=True, block=True)
+        self.leftHip.on_for_degrees(SpeedPercent(15), angle*5, brake=True, block=True)
 
         sleep(1)
         return True
@@ -153,9 +158,10 @@ class Movement:
         self.leftHip.off(brake=True)
 
         dir = angle / abs(angle)
+        hello.debug_print(dir)
         self.checkLastDir(self.rightHip, dir)
 
-        self.rightHip.on_for_degrees(SpeedPercent(20), angle*5, brake=True, block=True)
+        self.rightHip.on_for_degrees(SpeedPercent(15), angle*5, brake=True, block=True)
 
         sleep(1)
         return True
