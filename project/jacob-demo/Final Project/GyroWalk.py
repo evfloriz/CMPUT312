@@ -14,7 +14,8 @@ ON = True
 OFF = False
 class GyroMovement:
 
-    def __init__(self):
+    def __init__(self, distance):
+        self.distance = distance 
         self.fullStepSize = 3 #cm
         self.hip_width = 96 #mm
         self.leftAnkle = LargeMotor(OUTPUT_D)
@@ -55,8 +56,6 @@ class GyroMovement:
 
         self.horizontalGyro.reset()
         self.horizontalGyro.calibrate()
-        self.verticalGyro.reset()
-        self.verticalGyro.calibrate
         
         horizontalStart = self.horizontalGyro.angle
 
@@ -64,7 +63,6 @@ class GyroMovement:
             self.rightHip.on(5, brake=False)
             self.leftHip.on(-5, brake=False)
             
-            hello.debug_print(self.horizontalGyro.angle)
 
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
@@ -74,25 +72,18 @@ class GyroMovement:
 
 
     def liftRight(self):
-
+        sleep(2)
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
 
-        #Lift using on motor test 
-        self.horizontalGyro.reset()
-        self.horizontalGyro.calibrate()
+
         self.verticalGyro.reset()
         self.verticalGyro.calibrate
 
-        horizontalStart = self.horizontalGyro.angle
-        verticalStart = self.verticalGyro.angle
         
-        hello.debug_print("Lift Right")
         while(self.verticalGyro.angle > -18):  
             self.rightAnkle.on(-18, brake= False)
             self.leftAnkle.on(10, brake=False)
-            
-            hello.debug_print(self.verticalGyro.angle)
 
         self.leftAnkle.off(brake=True)
         self.rightAnkle.off(brake=True)
@@ -113,25 +104,22 @@ class GyroMovement:
     #Add Gyro to these lifting classes first
 
     def liftLeft(self):
+        sleep(2)
         self.leftHip.off(brake=True)
         self.rightHip.off(brake=True)
 
         #Lift using on motor test 
-        self.horizontalGyro.reset()
-        self.horizontalGyro.calibrate()
         self.verticalGyro.reset()
         self.verticalGyro.calibrate
 
-        horizontalStart = self.horizontalGyro.angle
         verticalStart = self.verticalGyro.angle
-        
-        hello.debug_print("Lift Left")
-        while(self.verticalGyro.angle < 14):  
+
+        while(self.verticalGyro.angle  < 14):  
             self.leftAnkle.on(-18, brake=False)
             self.rightAnkle.on(10, brake= False)
             hello.debug_print(self.verticalGyro.angle)
 
-        self.leftAnkle.off(brake=True)
+        self.leftAnkle.off(brake=False)
         self.rightAnkle.off(brake=True)
 
         sleep(2)
@@ -145,21 +133,6 @@ class GyroMovement:
         sleep(1)
         return True
 
-    def rotateLeft(self, angle):
-        self.leftAnkle.off(brake=True)
-        self.rightAnkle.off(brake=True)
-        self.rightHip.off(brake=True)
-        self.leftHip.on_for_degrees(SpeedPercent(25), angle*5, brake=True, block=True)
-        sleep(1)
-        return True
-
-    def rotateRight(self, angle):
-        self.leftAnkle.off(brake=True)
-        self.rightAnkle.off(brake=True)
-        self.leftHip.off(brake=True)
-        self.rightHip.on_for_degrees(SpeedPercent(25), angle*5, brake=True, block=True)
-        sleep(1)
-        return True
 
     def halfStepRight(self):
         #Half a shuffle
